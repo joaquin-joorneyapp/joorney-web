@@ -14,10 +14,16 @@
     "@emotion/react": "latest",
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
+    "@mui/lab": "^5.0.0-alpha.160",
     "@mui/material": "latest",
+    "@next/font": "^14.0.4",
+    "@tanstack/react-query": "^5.17.1",
+    "axios": "^1.6.4",
+    "mapbox-gl": "^3.0.1",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-map-gl": "^7.1.7"
   },
   "devDependencies": {
     "@types/node": "latest",

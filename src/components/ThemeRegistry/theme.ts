@@ -1,5 +1,30 @@
-import { Roboto } from 'next/font/google';
 import { createTheme } from '@mui/material/styles';
+import localFont from '@next/font/local';
+import { Roboto } from 'next/font/google';
+
+const productSansFont = localFont({
+  src: [
+    {
+      path: '../../../public/fonts/Product Sans Regular.ttf',
+      weight: '400',
+    },
+    {
+      path: '../../../public/fonts/Product Sans Bold.ttf',
+      weight: '700',
+    },
+    {
+      path: '../../../public/fonts/Product Sans Italic.ttf',
+      style: 'italic',
+      weight: '400',
+    },
+    {
+      path: '../../../public/fonts/Product Sans Bold Italic.ttf',
+      weight: '700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-poppins',
+});
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
@@ -10,9 +35,22 @@ const roboto = Roboto({
 const theme = createTheme({
   palette: {
     mode: 'light',
+    primary: {
+      main: '#F67D56',
+    },
+    secondary: {
+      main: '#222231cf',
+    },
   },
   typography: {
-    fontFamily: roboto.style.fontFamily,
+    fontFamily: productSansFont.style.fontFamily,
+    h4: {
+      color: '#222231cf',
+    },
+    body1: {
+      fontFamily: roboto.style.fontFamily,
+      fontWeight: 300,
+    },
   },
   components: {
     MuiAlert: {

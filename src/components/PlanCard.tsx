@@ -1,4 +1,4 @@
-import { Plan } from "@/types/fetchs/responses/Plan";
+import { Plan } from "@/types/fetchs/responses/plan";
 import {
   Button,
   Card,

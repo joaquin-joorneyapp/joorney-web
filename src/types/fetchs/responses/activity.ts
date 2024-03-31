@@ -1,5 +1,5 @@
-import { Category } from "./category";
-import { City } from "./city";
+import { Category } from './category';
+import { City } from './city';
 
 export interface Activity extends ActivityBase {
   categories: Category[];
@@ -16,9 +16,13 @@ export interface ActivityBase {
   longitude: number;
   city: City;
   cityId: number;
-  pictures: string[];
+  pictures: Picture[];
 }
 
 export interface ActivityEditForm extends ActivityBase {
   categories: number[] | Set<number>;
+}
+
+export interface Picture {
+  url: string;
 }

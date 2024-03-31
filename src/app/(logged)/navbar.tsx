@@ -1,45 +1,68 @@
-'use client'
+'use client';
 
-import MenuIcon from '@mui/icons-material/Menu'
-import AppBar from '@mui/material/AppBar'
-import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import IconButton from '@mui/material/IconButton'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import Toolbar from '@mui/material/Toolbar'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
-import * as React from 'react'
-import { useState } from 'react'
+import { AuthUserContext } from '@/contexts/AuthUserContext';
+import MenuIcon from '@mui/icons-material/Menu';
+import AppBar from '@mui/material/AppBar';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { useContext, useState } from 'react';
 
 const pages = [
   { name: 'Home', href: '/' },
+  { name: 'Data Management', href: '/cities', onlyLoggedUsers: true },
   { name: 'New Plan', href: '/new-plan' },
   { name: 'Saved Plans', href: '/saved-plans' },
-]
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
+  { name: 'Log in', href: '/login', onlyAnonymUsers: true },
+  { name: 'Sign up', href: '/signup', onlyAnonymUsers: true },
+];
+const settings = [
+  { name: 'Profile', handle: () => {} },
+  { name: 'Account', handle: () => {} },
+  { name: 'Dashboard', handle: () => {} },
+  {
+    name: 'Logout',
+    handle: () => {
+      localStorage.clear();
+      window.location.href = '/';
+    },
+  },
+];
 
 export default function Navbar() {
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const { user } = useContext(AuthUserContext);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget)
-  }
+    setAnchorElNav(event.currentTarget);
+  };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget)
-  }
+    setAnchorElUser(event.currentTarget);
+  };
 
   const handleCloseNavMenu = () => {
-    setAnchorElNav(null)
-  }
+    setAnchorElNav(null);
+  };
 
   const handleCloseUserMenu = () => {
-    setAnchorElUser(null)
-  }
+    setAnchorElUser(null);
+  };
+
+  const visiblePages = pages.filter(
+    (p) =>
+      (!p.onlyAnonymUsers && !p.onlyLoggedUsers) ||
+      (p.onlyAnonymUsers && !user?.isAuthenticated) ||
+      (p.onlyLoggedUsers && user?.isAuthenticated)
+  );
 
   return (
     <AppBar sx={{ backgroundColor: 'white' }} elevation={0}>
@@ -80,7 +103,7 @@ export default function Navbar() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
+              {visiblePages.map((page) => (
                 <MenuItem
                   key={page.name}
                   onClick={handleCloseNavMenu}
@@ -93,16 +116,16 @@ export default function Navbar() {
           </Box>
 
           <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
-            <img src="logo.svg" alt="logo" />
+            <img src="/logo.svg" alt="logo" />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box>
-            {pages.map((page) => (
+            {visiblePages.map((page) => (
               <Button
                 key={page.name}
                 onClick={handleCloseNavMenu}
                 color="secondary"
-                size={"large"}
+                size={'large'}
                 sx={{ my: 2 }}
                 href={page.href}
                 style={{ textTransform: 'none' }}
@@ -110,11 +133,13 @@ export default function Navbar() {
                 {page.name}
               </Button>
             ))}
-            <Tooltip title="Open settings" style={{ marginLeft: '1rem' }}>
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
+            {user?.isAuthenticated && (
+              <Tooltip title="Open settings" style={{ marginLeft: '1rem' }}>
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+            )}
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
@@ -132,8 +157,11 @@ export default function Navbar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                <MenuItem
+                  key={setting.name}
+                  onClick={() => (setting.handle(), handleCloseUserMenu())}
+                >
+                  <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -141,5 +169,5 @@ export default function Navbar() {
         </Toolbar>
       </Container>
     </AppBar>
-  )
+  );
 }

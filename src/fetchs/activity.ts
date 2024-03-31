@@ -1,36 +1,32 @@
+import { anonymousAxios, authAxios } from '@/configs/axios';
 import { Activity, ActivityEditForm } from '@/types/fetchs/responses/activity';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:3333';
 
 export const getActivities = (cityId: number): UseQueryResult<Activity[]> =>
   useQuery({
     queryKey: ['activities'],
     queryFn: () =>
-      axios
-        .get(`${BASE_URL}/cities/${cityId}/activities`)
-        .then((res) => res.data),
+      authAxios.get(`/cities/${cityId}/activities`).then((res) => res.data),
   });
 
 export const getActivity = (
-  cityId: number,
-  activityId: number
+  cityName: string,
+  activityName: string
 ): UseQueryResult<Activity> =>
   useQuery({
-    queryKey: [`activity/${activityId}`],
+    queryKey: [`cities/${cityName}/activity/${activityName}`],
     queryFn: () =>
-      axios
-        .get(`${BASE_URL}/cities/${cityId}/activities/${activityId}`)
+      anonymousAxios
+        .get(`/cities/${cityName}/activities/${activityName}`)
         .then((res) => res.data),
   });
 
 export const editActivity = (activity: ActivityEditForm) =>
-  axios.put(`${BASE_URL}/cities/${activity.cityId}/activities/${activity.id}`, {
+  authAxios.put(`/cities/${activity.cityId}/activities/${activity.id}`, {
     ...activity,
   });
 
-  export const createActivity = (activity: ActivityEditForm) =>
-  axios.post(`${BASE_URL}/cities/${activity.cityId}/activities`, {
+export const createActivity = (activity: ActivityEditForm) =>
+  authAxios.post(`/cities/${activity.cityId}/activities`, {
     ...activity,
   });

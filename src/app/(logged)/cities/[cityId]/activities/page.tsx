@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { useParams, useRouter } from 'next/navigation';
 
-export default function SavedPlansPage({}) {
+export default function ActivitiesPage({}) {
   const router = useRouter();
   const params = useParams<{ cityId: string }>();
   const { data: activities, isLoading: isLoadingActivities } = getActivities(
@@ -58,7 +58,6 @@ export default function SavedPlansPage({}) {
             variant="outlined"
             size="large"
             color="primary"
-            disableElevation
             href={`/cities/${params.cityId}/activities/create`}
           >
             New Activity
@@ -111,7 +110,7 @@ export default function SavedPlansPage({}) {
                             <IconButton
                               onClick={() =>
                                 router.push(
-                                  `/cities/${activity.cityId}/activities/${activity.id}/edit`
+                                  `/cities/${city?.name}/activities/${activity.name}/edit`
                                 )
                               }
                             >

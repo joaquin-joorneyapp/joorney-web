@@ -6,6 +6,7 @@ import { createActivity } from '@/fetchs/activity';
 import { getCategories } from '@/fetchs/category';
 import { getCity } from '@/fetchs/city';
 import { ActivityBase } from '@/types/fetchs/responses/activity';
+import { parseHTTPErrors } from '@/utils/http';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -37,9 +38,10 @@ export default function SavedPlansPage({}) {
   const { data: categories, isLoading: isLoadingCategories } = getCategories();
   const { data: city, isLoading: isLoadingCity } = getCity(+params.cityId);
 
-  const [formData, setFormData] = useState<EditFormActivity>(
-    {name: '', cityId: params.cityId} as any as EditFormActivity
-  );
+  const [formData, setFormData] = useState<EditFormActivity>({
+    name: '',
+    cityId: params.cityId,
+  } as any as EditFormActivity);
   const [errors, setErrors] = useState<any>({});
   const [isProcessing, setProcessing] = useState(false);
 
@@ -60,7 +62,7 @@ export default function SavedPlansPage({}) {
     createActivity({ ...formData })
       .then(() => router.push(`/cities/${params.cityId}/activities`))
       .catch((err) => {
-        const { errors } = err?.response?.data || [];
+        const errors = parseHTTPErrors(err);
         const errorsAsMap = errors.reduce((map: any, error: any) => {
           map[error.field] = error.message;
           return map;
@@ -91,7 +93,7 @@ export default function SavedPlansPage({}) {
         ) : (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-            <Grid item xs={12}>
+              <Grid item xs={12}>
                 <TextField
                   required
                   id="name"

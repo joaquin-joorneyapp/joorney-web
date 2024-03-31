@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-export default function LoggedLayout({
+export default function AnonymousLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <div>{children}</div>;
 }

@@ -5,6 +5,8 @@ import TitleSkeleton from '@/components/skeletons/GenericTitle';
 import { editActivity, getActivity } from '@/fetchs/activity';
 import { getCategories } from '@/fetchs/category';
 import { ActivityBase } from '@/types/fetchs/responses/activity';
+import { parseHTTPErrors } from '@/utils/http';
+import { buildImageUrl } from '@/utils/image';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -24,6 +26,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -33,10 +36,10 @@ interface EditFormActivity extends ActivityBase {
 
 export default function SavedPlansPage({}) {
   const router = useRouter();
-  const params = useParams<{ cityId: string; activityId: string }>();
+  const params = useParams<{ cityName: string; activityName: string }>();
   const { data: activity, isLoading: isLoadingActivity } = getActivity(
-    parseInt(params.cityId),
-    parseInt(params.activityId)
+    params.cityName,
+    params.activityName
   );
 
   const { data: categories, isLoading: isLoadingCategories } = getCategories();
@@ -67,7 +70,7 @@ export default function SavedPlansPage({}) {
     editActivity({ ...formData })
       .then(() => router.push(`/cities/${activity?.cityId}/activities`))
       .catch((err) => {
-        const { errors } = err?.response?.data || [];
+        const errors = parseHTTPErrors(err);
         const errorsAsMap = errors.reduce((map: any, error: any) => {
           map[error.field] = error.message;
           return map;
@@ -238,8 +241,8 @@ export default function SavedPlansPage({}) {
                 {activity?.pictures.length ? (
                   <ImageList cols={3}>
                     {activity.pictures.map((item) => (
-                      <ImageListItem key={item}>
-                        <img src={`${item}`} loading="lazy" />
+                      <ImageListItem key={item.url}>
+                        <Image src={buildImageUrl(item.url)} loading="lazy" alt={item.url} width={500} height={500}/>
                       </ImageListItem>
                     ))}
                   </ImageList>

@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
-import localFont from '@next/font/local';
 import { Roboto } from 'next/font/google';
+import localFont from "next/font/local";
 
 const productSansFont = localFont({
   src: [
@@ -48,6 +48,10 @@ const theme = createTheme({
       color: '#222231cf',
     },
     body1: {
+      fontFamily: roboto.style.fontFamily,
+      fontWeight: 300,
+    },
+    body2: {
       fontFamily: roboto.style.fontFamily,
       fontWeight: 300,
     },

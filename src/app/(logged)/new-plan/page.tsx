@@ -1,10 +1,8 @@
 'use client'
-import * as React from 'react'
-import Box from '@mui/material/Box'
-import { Typography } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2/Grid2'
 import NumericalButtonInput from '@/components/input/NumericalButtonInput'
-import { FormGroup } from '@mui/material'
+import { Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Unstable_Grid2/Grid2'
 
 export default function HorizontalLinearAlternativeLabelStepper() {
   return (

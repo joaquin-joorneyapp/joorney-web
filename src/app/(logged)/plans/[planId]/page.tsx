@@ -1,34 +1,49 @@
 'use client';
-import DisplayPlan from '@/components/plan/DisplayPlan';
-import { AuthUserContext } from '@/contexts/AuthUserContext';
-import { createInitialPlan, getPlanCreator } from '@/fetchs/plan';
-import { DailySchedule, Plan } from '@/types/fetchs/responses/plan';
 
+import DisplayPlan from '@/components/plan/DisplayPlan';
+import { createInitialPlan, editPlan, getPlan } from '@/fetchs/plan';
+import { DailySchedule, Plan } from '@/types/fetchs/responses/plan';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default () => {
-  const { user } = useContext(AuthUserContext);
-  const planCreator = getPlanCreator();
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const router = useRouter();
+  const { planId } = useParams<{ planId: string }>();
   const params = useSearchParams();
-  const { cityId: cityName } = useParams<{ cityId: string }>();
+  const {
+    data: originalPlan = null,
+    isLoading,
+    refetch,
+  } = getPlan(parseInt(planId));
+  const [plan, setPlan] = useState(originalPlan);
+  const router = useRouter();
 
   useEffect(() => {
-    setPlan(null);
-    const days = parseInt(params.get('days') || '3');
-    const categories = params.getAll('categories');
-    createInitialPlan(cityName, days, categories).then((plan) => setPlan(plan));
+    if (!isLoading) {
+      console.log('changed');
+      const days = parseInt(params.get('days') || '3');
+      const categories = params.getAll('categories');
+      createInitialPlan(originalPlan?.city.name || '', days, categories).then(
+        (plan) => setPlan(plan)
+      );
+    }
   }, [params]);
+
+  useEffect(() => {
+    if (originalPlan) {
+      setPlan(originalPlan);
+    }
+  }, [originalPlan]);
 
   const onSave = (plan: Plan) => {
     const schedules = plan.schedules.map((s: DailySchedule) =>
       s.activities.map((a) => a.id)
     );
-    return planCreator
-      .mutateAsync({ ...plan, cityName, schedules })
-      .then((plan) => router.replace(`/plans/${plan.id}`));
+    return editPlan({
+      ...plan,
+      id: originalPlan?.id,
+      cityName: originalPlan?.city.name,
+      schedules,
+    }).then(() => refetch());
   };
 
   const onChangedPlan = ({ days, selectedCategories }: any) => {
@@ -43,6 +58,7 @@ export default () => {
 
   return (
     <DisplayPlan
+      saveButtonLabel="Save changes"
       plan={plan}
       handleChangedPlan={onChangedPlan}
       onSave={onSave}

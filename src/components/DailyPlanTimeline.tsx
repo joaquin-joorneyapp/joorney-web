@@ -3,9 +3,6 @@ import { City } from '@/types/fetchs/responses/city';
 import { DailySchedule } from '@/types/fetchs/responses/plan';
 import { buildImageUrl } from '@/utils/image';
 import { Schedule } from '@mui/icons-material';
-import HotelIcon from '@mui/icons-material/Hotel';
-import LaptopMacIcon from '@mui/icons-material/LaptopMac';
-import RepeatIcon from '@mui/icons-material/Repeat';
 import Timeline from '@mui/lab/Timeline';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
@@ -16,12 +13,14 @@ import TimelineOppositeContent, {
 } from '@mui/lab/TimelineOppositeContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
+  DialogContent,
   ImageList,
   ImageListItem,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { addMinutes, format, set } from 'date-fns';
@@ -39,6 +38,8 @@ export default function DailyPlanTimeline({
   schedule: DailySchedule;
   onHoverActivity: Function;
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [viewDetails, setViewDetails] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null
@@ -63,6 +64,7 @@ export default function DailyPlanTimeline({
         [`& .${timelineOppositeContentClasses.root}`]: {
           flex: 0.1,
         },
+        pr: 0,
       }}
     >
       {schedule.activities.map((activity, i) => (
@@ -84,7 +86,7 @@ export default function DailyPlanTimeline({
           onMouseLeave={() => onHoverActivity(null)}
         >
           <TimelineOppositeContent
-            sx={{ m: '0', mt: 1.5 }}
+            sx={{ m: '0', mt: 1.5, display: { xs: 'none', md: 'flex' } }}
             align="right"
             variant="body2"
             color="text.secondary"
@@ -98,12 +100,13 @@ export default function DailyPlanTimeline({
                 color="secondary"
               />
             </TimelineDot>
-            <TimelineConnector />
+            {i + 1 < schedule.activities.length && <TimelineConnector />}
           </TimelineSeparator>
           <TimelineContent
             sx={{
               py: '12px',
-              px: 2,
+              pl: 2,
+              pr: 0,
             }}
           >
             <Typography variant="h6" component="span">
@@ -113,14 +116,22 @@ export default function DailyPlanTimeline({
               {activity.description?.split('.')[0] + '.'}
             </Typography>
             <ImageList
-              sx={{ width: 'auto', height: 'auto', my: 1 }}
-              cols={3}
+              sx={{
+                width: 'auto',
+                height: 'auto',
+                my: 1,
+              }}
+              cols={isMobile ? 2 : 3}
               rowHeight={134}
             >
-              {activity.pictures?.slice(0, 3).map((item) => (
+              {activity.pictures?.slice(0, isMobile ? 2 : 3).map((item) => (
                 <ImageListItem
                   key={item.url}
-                  sx={{ borderRadius: 2, overflow: 'hidden', mx: 0.2 }}
+                  sx={{
+                    borderRadius: 2,
+                    mx: 0.2,
+                    overflow: 'hidden',
+                  }}
                 >
                   <img
                     srcSet={buildImageUrl(item.url)}
@@ -140,130 +151,26 @@ export default function DailyPlanTimeline({
           </TimelineContent>
         </TimelineItem>
       ))}
-      <TimelineItem>
-        <TimelineOppositeContent
-          sx={{ m: '0', mt: 1.5 }}
-          align="right"
-          variant="body2"
-          color="text.secondary"
-        >
-          9:30 am
-        </TimelineOppositeContent>
-        <TimelineSeparator>
-          <TimelineDot>
-            <CategoryIcon category="food" />
-          </TimelineDot>
-          <TimelineConnector />
-        </TimelineSeparator>
-        <TimelineContent sx={{ py: '12px', px: 2 }}>
-          <Typography variant="h6" component="span">
-            Eat
-          </Typography>
-          <Typography variant="body1">
-            Because you need strength. Because you need strength. Because you
-            need strength. Because you need strength.
-          </Typography>
-          <ImageList
-            sx={{ width: 'auto', height: 'auto', my: 1 }}
-            cols={3}
-            rowHeight={134}
-          >
-            {itemData.map((item, i) => (
-              <ImageListItem
-                key={i}
-                sx={{ borderRadius: 2, overflow: 'hidden', mx: 0.2 }}
-              >
-                <img
-                  srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                  src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                  alt={item.title}
-                  loading="lazy"
-                />
-              </ImageListItem>
-            ))}
-          </ImageList>
-        </TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineOppositeContent
-          sx={{ m: 'auto 0' }}
-          variant="body2"
-          color="text.secondary"
-        >
-          10:00 am
-        </TimelineOppositeContent>
-        <TimelineSeparator>
-          <TimelineConnector />
-          <TimelineDot color="primary">
-            <LaptopMacIcon />
-          </TimelineDot>
-          <TimelineConnector />
-        </TimelineSeparator>
-        <TimelineContent sx={{ py: '12px', px: 2 }}>
-          <Typography variant="h6" component="span">
-            Code
-          </Typography>
-          <Typography>Because it&apos;s awesome!</Typography>
-        </TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineOppositeContent
-          sx={{ m: 'auto 0' }}
-          variant="body2"
-          color="text.secondary"
-        >
-          11:00 am
-        </TimelineOppositeContent>
-        <TimelineSeparator>
-          <TimelineConnector />
-          <TimelineDot color="primary" variant="outlined">
-            <HotelIcon />
-          </TimelineDot>
-          <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
-        </TimelineSeparator>
-        <TimelineContent sx={{ py: '12px', px: 2 }}>
-          <Typography variant="h6" component="span">
-            Sleep
-          </Typography>
-          <Typography>Because you need rest</Typography>
-        </TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineOppositeContent
-          sx={{ m: 'auto 0' }}
-          variant="body2"
-          color="text.secondary"
-        >
-          12:00 am
-        </TimelineOppositeContent>
-        <TimelineSeparator>
-          <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
-          <TimelineDot color="secondary">
-            <RepeatIcon />
-          </TimelineDot>
-        </TimelineSeparator>
-        <TimelineContent sx={{ py: '12px', px: 2 }}>
-          <Typography variant="h6" component="span">
-            Repeat
-          </Typography>
-          <Typography>Because this is the life you love!</Typography>
-        </TimelineContent>
-      </TimelineItem>
+
       <Dialog
-        scroll={'body'}
-        fullWidth={true}
+        scroll={isMobile ? 'paper' : 'body'}
+        fullWidth={!isMobile}
+        fullScreen={isMobile}
         maxWidth={'xl'}
         open={viewDetails}
         onClose={() => setViewDetails(false)}
       >
-        <Box sx={{ pt: 3, pl: 6, pr: 6 }}>
+        <DialogContent
+          dividers
+          sx={{ pt: { xs: 1.5, md: 3 }, px: { xs: 1.5, md: 6 } }}
+        >
           {selectedActivity && (
             <DisplayActivity
               activityName={selectedActivity?.name}
               cityName={city.name}
             />
           )}
-        </Box>
+        </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewDetails(false)}>Close</Button>
         </DialogActions>
@@ -271,18 +178,3 @@ export default function DailyPlanTimeline({
     </Timeline>
   );
 }
-
-const itemData = [
-  {
-    img: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-    title: 'Breakfast',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d',
-    title: 'Burger',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45',
-    title: 'Camera',
-  },
-];

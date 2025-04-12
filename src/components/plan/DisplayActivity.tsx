@@ -7,12 +7,12 @@ import {
   Box,
   Chip,
   Container,
+  Grid,
   ImageList,
   ImageListItem,
   Skeleton,
   Typography,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import CategoryIcon from '../CategoryIcon';
 import LabeledIcon from '../LabeledIcon';
 import LocationMap from '../maps/LocationMap';
@@ -32,15 +32,19 @@ export default ({
   return (
     <Box sx={{ width: '100%' }}>
       <Box marginTop={2} marginBottom={1} display="flex" alignItems="center">
-        <Typography variant="h3" color="secondary" display={'inline'}>
+        <Typography
+          sx={{ typography: { xs: 'h4', md: 'h3' } }}
+          color="secondary"
+          display={'inline'}
+        >
           {isLoadingActivity ? <TitleSkeleton /> : activity?.title}
         </Typography>
       </Box>
 
       <Grid container rowSpacing={3} columnSpacing={3}>
-        <Grid md={6} xs={12}>
+        <Grid md={6} xs={12} item>
           <Container sx={{ mb: 2.5 }} style={{ paddingLeft: 0 }}>
-            <Box display="flex" alignItems="center">
+            <Box display="flex" alignItems="center" flexWrap="wrap">
               {isLoadingActivity ? (
                 Array.from({ length: 3 }, (_, i) => <ChipSkeleton key={i} />)
               ) : (
@@ -93,7 +97,7 @@ export default ({
                   label={activity?.address || ''}
                   color="text.primary"
                   spaceBetween={0.6}
-                  fontVariant='body1'
+                  fontVariant="body1"
                   sx={{ mr: 1.5, mb: 0.5 }}
                 />
               )}
@@ -111,7 +115,7 @@ export default ({
             )}
           </Container>
         </Grid>
-        <Grid md={6} xs={12}>
+        <Grid md={6} xs={12} item>
           <Container style={{ paddingLeft: 0, paddingRight: 0 }}>
             <ImageList
               sx={{ width: '100%' }}

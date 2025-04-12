@@ -13,14 +13,19 @@ import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useContext, useState } from 'react';
 
 const pages = [
   { name: 'Home', href: '/' },
-  { name: 'Data Management', href: '/cities', onlyLoggedUsers: true },
+  {
+    name: 'Data Management',
+    href: '/cities',
+    onlyAdminUsers: true,
+  },
   { name: 'New Plan', href: '/new-plan' },
-  { name: 'Saved Plans', href: '/saved-plans' },
+  { name: 'Saved Plans', href: '/saved-plans', onlyLoggedUsers: true },
   { name: 'Log in', href: '/login', onlyAnonymUsers: true },
   { name: 'Sign up', href: '/signup', onlyAnonymUsers: true },
 ];
@@ -32,7 +37,7 @@ const settings = [
     name: 'Logout',
     handle: () => {
       localStorage.clear();
-      window.location.href = '/';
+      window.location.href = '/login';
     },
   },
 ];
@@ -41,6 +46,7 @@ export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const { user } = useContext(AuthUserContext);
+  const router = useRouter();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -49,7 +55,8 @@ export default function Navbar() {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleClickNavMenu = (href: string) => {
+    if(href) router.push(href);
     setAnchorElNav(null);
   };
 
@@ -57,25 +64,32 @@ export default function Navbar() {
     setAnchorElUser(null);
   };
 
-  const visiblePages = pages.filter(
-    (p) =>
+  const visiblePages = pages.filter((p) => {
+    if (p.onlyAdminUsers && !user?.isAdmin) return false;
+    return (
       (!p.onlyAnonymUsers && !p.onlyLoggedUsers) ||
       (p.onlyAnonymUsers && !user?.isAuthenticated) ||
       (p.onlyLoggedUsers && user?.isAuthenticated)
-  );
+    );
+  });
 
   return (
     <AppBar sx={{ backgroundColor: 'white' }} elevation={0}>
       <Container maxWidth={false}>
         <Toolbar
           disableGutters
-          style={{ minHeight: 90, padding: '0 3rem 0 3rem' }}
+          sx={{
+            minHeight: { md: 90, xs: 80 },
+            padding: { md: '0 3rem 0 3rem' },
+          }}
           id="toolbar"
         >
-          <img src="/logo.svg" alt="logo" />
-
+          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} />
+          </Box>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
+              sx={{ px: { xs: 0.5 } }}
               size="large"
               aria-label="account of current user"
               aria-controls="menu-appbar"
@@ -98,7 +112,7 @@ export default function Navbar() {
                 horizontal: 'left',
               }}
               open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
+              onClose={handleClickNavMenu}
               sx={{
                 display: { xs: 'block', md: 'none' },
               }}
@@ -106,8 +120,7 @@ export default function Navbar() {
               {visiblePages.map((page) => (
                 <MenuItem
                   key={page.name}
-                  onClick={handleCloseNavMenu}
-                  href={page.href}
+                  onClick={() => handleClickNavMenu(page.href)}
                 >
                   <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
@@ -116,29 +129,42 @@ export default function Navbar() {
           </Box>
 
           <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
-            <img src="/logo.svg" alt="logo" />
+            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
-          <Box>
+          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             {visiblePages.map((page) => (
               <Button
                 key={page.name}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleClickNavMenu(page.href)}
                 color="secondary"
                 size={'large'}
                 sx={{ my: 2 }}
-                href={page.href}
                 style={{ textTransform: 'none' }}
               >
                 {page.name}
               </Button>
             ))}
-            {user?.isAuthenticated && (
+          </Box>
+          <Box sx={{ mr: 0 }}>
+            {user?.isAuthenticated ? (
               <Tooltip title="Open settings" style={{ marginLeft: '1rem' }}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt={user.name}>{user.name ? user.name[0] : ''}</Avatar>
                 </IconButton>
               </Tooltip>
+            ) : (
+              <Box sx={{ display: { xs: 'flex', md: 'none' }, mx: 0 }}>
+                <Button
+                  onClick={() => handleClickNavMenu('/login')}
+                  color="secondary"
+                  size={'large'}
+                  sx={{ mr: -1, ml: -1.2 }}
+                  style={{ textTransform: 'initial', fontSize: 20 }}
+                >
+                  Log in
+                </Button>
+              </Box>
             )}
             <Menu
               sx={{ mt: '45px' }}

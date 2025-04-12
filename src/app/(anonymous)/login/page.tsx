@@ -1,7 +1,9 @@
 'use client';
 
+import Copyright from '@/components/Copyright';
 import { AuthUserContext } from '@/contexts/AuthUserContext';
 import { login, registerWithGoogle, verifyEmail } from '@/fetchs/auth';
+import { countPlans } from '@/fetchs/plan';
 import { parseHTTPErrors } from '@/utils/http';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { LoadingButton } from '@mui/lab';
@@ -18,33 +20,24 @@ import Typography from '@mui/material/Typography';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useState } from 'react';
 
-export function Copyright(props: any) {
+export default function WrappedLogin() {
   return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
+    <Suspense>
+      <Login />
+    </Suspense>
   );
 }
 
-export default function Login() {
+function Login() {
   const { setUser } = useContext(AuthUserContext);
   const [isProcessing, setProcessing] = useState(false);
   const [errors, setErrors] = useState<any[]>([]);
   const [googleErrors, setGoogleErrors] = useState<any[]>([]);
   const [isEmailValidated, setEmailValidated] = useState(true);
   const [isValidating, setValidating] = useState(true);
+  const { refetch } = countPlans();
   const router = useRouter();
   const params = useSearchParams();
 
@@ -68,6 +61,21 @@ export default function Login() {
     }
   }, [token]);
 
+  const handlePostLogin = async (res: any) => {
+    setUser(res);
+    const { hash } = location;
+    if (hash && hash.includes('redirect')) {
+      router.push(hash.split(/=(.*)/s)[1]);
+      return;
+    }
+    const count = await refetch();
+    if (count?.data?.count) {
+      router.push('/saved-plans');
+    } else {
+      router.push('/cities/new-york/new-plan');
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     setProcessing(true);
     setErrors([]);
@@ -77,10 +85,7 @@ export default function Login() {
       email: data.get('email')?.toString() || '',
       password: data.get('password')?.toString() || '',
     })
-      .then((res) => {
-        setUser(res.data);
-        router.push('/cities');
-      })
+      .then(handlePostLogin)
       .catch((err) => {
         setErrors(parseHTTPErrors(err));
       })
@@ -90,10 +95,7 @@ export default function Login() {
   const signInWithGoogle = (res: CredentialResponse) => {
     setGoogleErrors([]);
     registerWithGoogle({ token: res.credential || '' })
-      .then((res) => {
-        setUser(res.data);
-        router.push('/cities');
-      })
+      .then(handlePostLogin)
       .catch((err) => {
         setGoogleErrors(parseHTTPErrors(err));
       });
@@ -118,23 +120,23 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          {token && (
-            <Box sx={{ mt: 2, width: '100%', p: 1 }}>
-              {isValidating ? (
-                <Skeleton height={70} />
-              ) : isEmailValidated ? (
-                <Alert severity="success">
-                  <b>Great! Your account was validated.</b> Now, sign in using
-                  your credentials.
-                </Alert>
-              ) : (
-                <Alert severity="error">
-                  <b>Something went wrong.</b> The token was expired or is
-                  invalid. Contact support.
-                </Alert>
-              )}
-            </Box>
-          )}
+            {token && (
+              <Box sx={{ mt: 2, width: '100%', p: 1 }}>
+                {isValidating ? (
+                  <Skeleton height={70} />
+                ) : isEmailValidated ? (
+                  <Alert severity="success">
+                    <b>Great! Your account was validated.</b> Now, sign in using
+                    your credentials.
+                  </Alert>
+                ) : (
+                  <Alert severity="error">
+                    <b>Something went wrong.</b> The token was expired or is
+                    invalid. Contact support.
+                  </Alert>
+                )}
+              </Box>
+            )}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -184,7 +186,7 @@ export default function Login() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/signup" variant="body2">
+                <Link href={`/signup${location.hash}`} variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

@@ -189,7 +189,11 @@ export default function SavedPlansPage({}) {
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControl error={!!errors['categories']} required sx={{width: '100%'}}>
+                <FormControl
+                  error={!!errors['categories']}
+                  required
+                  sx={{ width: '100%' }}
+                >
                   <InputLabel id="categories-label">Categories</InputLabel>
                   <Select
                     id="categories"
@@ -204,17 +208,14 @@ export default function SavedPlansPage({}) {
                     input={<OutlinedInput id="category" label="Categories" />}
                     renderValue={(selected) => (
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selected.map((value) => {
-                          console.log('value', value);
-                          return (
-                            <Chip
-                              key={value}
-                              label={
-                                categories?.find((c) => c.id === value)?.title
-                              }
-                            />
-                          );
-                        })}
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={
+                              categories?.find((c) => c.id === value)?.title
+                            }
+                          />
+                        ))}
                       </Box>
                     )}
                     MenuProps={{
@@ -242,7 +243,13 @@ export default function SavedPlansPage({}) {
                   <ImageList cols={3}>
                     {activity.pictures.map((item) => (
                       <ImageListItem key={item.url}>
-                        <Image src={buildImageUrl(item.url)} loading="lazy" alt={item.url} width={500} height={500}/>
+                        <Image
+                          src={buildImageUrl(item.url)}
+                          loading="lazy"
+                          alt={item.url}
+                          width={500}
+                          height={500}
+                        />
                       </ImageListItem>
                     ))}
                   </ImageList>

@@ -1,6 +1,7 @@
 import { getBaseInstance } from '@/configs/axios';
-import { MAPBOX_API_TOKEN } from '@/configs/mapbox';
+import { MAPBOX_API_TOKEN, MAPBOX_MAX_ROUTE } from '@/configs/mapbox';
 import { ActivityBase } from '@/types/fetchs/responses/activity';
+import { chunkWithOverlap } from '@/utils/array';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const mapboxAxios = getBaseInstance('https://api.mapbox.com/');
@@ -11,25 +12,32 @@ export const getOptimizedRoute = (
 ): UseQueryResult<any> =>
   useQuery({
     queryKey: [
-      `optimized-trips/coordinates/${getParsedCoordinates(coordinates)}`,
+      `optimized-trips/coordinates/${getParsedCoordinates(coordinates!)}`,
     ],
-    queryFn: () =>
-      mapboxAxios
-        .get(
-          `optimized-trips/v1/mapbox/${type}/${getParsedCoordinates(
-            coordinates
-          )}`,
-          {
-            params: {
-              overview: 'full',
-              steps: true,
-              geometries: 'geojson',
-              source: 'first',
-              access_token: MAPBOX_API_TOKEN,
-            },
-          }
+    queryFn: () => {
+      return Promise.all(
+        chunkWithOverlap(coordinates!, MAPBOX_MAX_ROUTE).map((chunk) =>
+          mapboxAxios
+            .get(
+              `optimized-trips/v1/mapbox/${type}/${getParsedCoordinates(
+                chunk
+              )}`,
+              {
+                params: {
+                  overview: 'simplified',
+                  steps: true,
+                  source: 'first',
+                  destination: 'last',
+                  roundtrip: false,
+                  geometries: 'geojson',
+                  access_token: MAPBOX_API_TOKEN,
+                },
+              }
+            )
+            .then((res) => res.data)
         )
-        .then((res) => res.data),
+      );
+    },
     enabled: !!coordinates,
   });
 

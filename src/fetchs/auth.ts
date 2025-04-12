@@ -26,4 +26,6 @@ export const confirmPasswordReset = (body: {
 }) => anonymousAxios.put(`/auth/reset-password/confirm`, { ...body });
 
 export const registerWithGoogle = (body: { token: string }) =>
-  anonymousAxios.post(`/auth/providers/google/register`, { ...body });
+  anonymousAxios
+    .post(`/auth/providers/google/register`, { ...body })
+    .then((res) => res.data);

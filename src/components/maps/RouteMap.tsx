@@ -1,25 +1,40 @@
 import { MAPBOX_API_TOKEN } from '@/configs/mapbox';
 import { Activity } from '@/types/fetchs/responses/activity';
 import { City } from '@/types/fetchs/responses/city';
-import { Box, Button, Chip, Dialog, DialogActions } from '@mui/material';
-import { bbox, feature, featureCollection } from '@turf/turf';
+import {
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import {
+  bbox,
+  feature,
+  FeatureCollection,
+  featureCollection
+} from '@turf/turf';
 import { useEffect, useRef, useState } from 'react';
 import Map, { Layer, MapRef, Marker, Source } from 'react-map-gl';
 import DisplayActivity from '../plan/DisplayActivity';
 
 export default function RouteMap({
   activities,
-  route,
+  routes,
   city,
   focusActivity,
 }: {
   activities: Activity[];
-  route: any;
+  routes: any;
   city: City;
   focusActivity: number | null;
 }) {
-  const mapRef = useRef<MapRef>();
-  const [data, setData] = useState(featureCollection([]));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const mapRef = useRef<MapRef>(null);
+  const [data, setData] = useState<FeatureCollection>(featureCollection([]));
   const [selected, setSelected] = useState<number | null>(null);
   const [viewDetails, setViewDetails] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
@@ -27,8 +42,10 @@ export default function RouteMap({
   );
 
   useEffect(() => {
-    if (route && mapRef.current) {
-      const points = featureCollection([feature(route.trips[0].geometry)]);
+    if (routes && mapRef.current) {
+      const points = featureCollection(
+        routes.map((route: any) => feature(route.trips[0].geometry))
+      );
       setData(points);
 
       const bounds = bbox(points);
@@ -53,7 +70,7 @@ export default function RouteMap({
         initialViewState={{
           zoom: 11.8,
         }}
-        style={{ width: '100%', height: 780 }}
+        style={{ width: '100%', height: 600 }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={`${MAPBOX_API_TOKEN}`}
       >
@@ -125,20 +142,24 @@ export default function RouteMap({
         ))}
       </Map>
       <Dialog
-        scroll={'body'}
-        fullWidth={true}
+        scroll={isMobile ? 'paper' : 'body'}
+        fullWidth={!isMobile}
+        fullScreen={isMobile}
         maxWidth={'xl'}
         open={viewDetails}
         onClose={() => setViewDetails(false)}
       >
-        <Box sx={{ pt: 3, pl: 6, pr: 6 }}>
+        <DialogContent
+          dividers
+          sx={{ pt: { xs: 1.5, md: 3 }, px: { xs: 1.5, md: 6 } }}
+        >
           {selectedActivity && (
             <DisplayActivity
               activityName={selectedActivity?.name}
               cityName={city.name}
             />
           )}
-        </Box>
+        </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewDetails(false)}>Close</Button>
         </DialogActions>

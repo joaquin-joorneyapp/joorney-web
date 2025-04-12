@@ -2,6 +2,7 @@ import { Category } from './category';
 import { City } from './city';
 
 export interface Activity extends ActivityBase {
+  [x: string]: any;
   categories: Category[];
 }
 

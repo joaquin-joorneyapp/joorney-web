@@ -1,32 +1,33 @@
-import { anonymousAxios } from '@/configs/axios';
+'use client';
+
+import { anonymousAxios, authAxios } from '@/configs/axios';
 import { Plan } from '@/types/fetchs/responses/plan';
-import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import {
+  UseQueryResult,
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 
-const PLANS = [
-  {
-    city: 'New York',
-    start: new Date(2023, 1, 1),
-    duration: 5,
-    activities: [[], [], []],
-    pictures: [
-      '/pictures/nyc/nyc-1.jpg',
-      '/pictures/nyc/nyc-2.jpg',
-      '/pictures/nyc/nyc-3.jpeg',
-    ],
-  },
-];
-
-export const getSavedPlans = (): UseQueryResult<Plan[]> =>
+export const getPlans = (): UseQueryResult<Plan[]> =>
   useQuery({
-    queryKey: ['saved-plans'],
-    queryFn: () =>
-      new Promise((resolve, _) => setTimeout(() => resolve([...PLANS]), 1000)),
+    queryKey: ['plans'],
+    queryFn: () => authAxios.get(`/plans`).then((res) => res.data),
   });
-/*
-  axios
-        .get("https://jsonplaceholder.typicode.com/posts")
-        .then((res) => res.data)
-        */
+
+export const countPlans = (): UseQueryResult<{ count: number }> =>
+  useQuery({
+    queryKey: ['count-plans'],
+    queryFn: () => authAxios.get(`/plans/count`).then((res) => res.data),
+    enabled: !!(
+      typeof localStorage !== 'undefined' && localStorage.getItem('user')
+    ),
+  });
+
+export const getPlan = (planId: number): UseQueryResult<Plan> =>
+  useQuery({
+    queryKey: [`plans/${planId}`],
+    queryFn: () => authAxios.get(`/plans/${planId}`).then((res) => res.data),
+  });
 
 export const createInitialPlan = (
   cityName: string,
@@ -36,3 +37,12 @@ export const createInitialPlan = (
   anonymousAxios
     .post<Plan>('/plans/initial', { cityName, days, categories })
     .then((res) => res.data);
+
+export const editPlan = (body: any) =>
+  authAxios.put<Plan>(`/plans/${body.id}`, { ...body }).then((res) => res.data);
+
+export const getPlanCreator = () =>
+  useMutation({
+    mutationFn: (body: any) =>
+      authAxios.post<Plan>('/plans', { ...body }).then((res) => res.data),
+  });

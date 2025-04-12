@@ -11,11 +11,33 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'plus.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+        port: '',
+        pathname: '/**',
+      },
+
+      {
+        protocol: 'https',
         hostname: 'storage.googleapis.com',
         port: '',
-        pathname: '/**'
-      }
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

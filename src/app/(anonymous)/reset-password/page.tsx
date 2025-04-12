@@ -1,5 +1,6 @@
 'use client';
 
+import Copyright from '@/components/Copyright';
 import { confirmPasswordReset } from '@/fetchs/auth';
 import { parseHTTPErrors } from '@/utils/http';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -15,10 +16,17 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Copyright } from '../login/page';
+import { Suspense, useEffect, useState } from 'react';
 
-export default function Login() {
+export default function WrappedResetPassword() {
+  return (
+    <Suspense>
+      <ResetPassword />
+    </Suspense>
+  );
+}
+
+function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [isProcessing, setProcessing] = useState(false);
   const [errors, setErrors] = useState<any[]>([]);

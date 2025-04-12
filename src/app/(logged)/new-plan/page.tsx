@@ -10,11 +10,10 @@ export default function HorizontalLinearAlternativeLabelStepper() {
       <Typography variant="h4" component="div" marginTop={2} marginBottom={4}>
         New Trip
       </Typography>
-      <Grid container rowSpacing={3} columnSpacing={3}>
+      <Grid container rowSpacing={3} >
         <Grid md={4} xs={12}>
             <NumericalButtonInput
               my={2}
-              label="Adults"
               minValue={0}
               initialValue={2}
               maxValue={10}
@@ -22,7 +21,6 @@ export default function HorizontalLinearAlternativeLabelStepper() {
             />
             <NumericalButtonInput
               my={2}
-              label="Children"
               minValue={0}
               initialValue={2}
               maxValue={10}
@@ -30,7 +28,6 @@ export default function HorizontalLinearAlternativeLabelStepper() {
             />
             <NumericalButtonInput
               my={2}
-              label="Babies"
               minValue={0}
               initialValue={2}
               maxValue={10}

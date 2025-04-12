@@ -15,10 +15,9 @@ export default function LoggedLayout({
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
           bgcolor: 'background.default',
           mt: ['48px', '56px', '64px'],
-          marginX: ['0px', '0px', '4rem'],
+          marginX: ['0.5rem', '1rem', '4rem'],
           px: 1,
           pt: 3,
         }}

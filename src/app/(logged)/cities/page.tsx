@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
-export default function SavedPlansPage({}) {
+export default function ListCities({}) {
   const { data: cities, isLoading } = getCities();
   const router = useRouter();
   return (
@@ -38,7 +38,7 @@ export default function SavedPlansPage({}) {
         {isLoading ? (
           <TableContainer component={Paper}>
             <TableSkeleton rows={2} cols={5} />
-            </TableContainer>
+          </TableContainer>
         ) : (
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">

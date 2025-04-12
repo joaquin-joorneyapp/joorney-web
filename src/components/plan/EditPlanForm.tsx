@@ -1,4 +1,4 @@
-import { EditPlanForm } from '@/types/fetchs/requests/plan';
+import { GetInitialPlanForm } from '@/types/fetchs/requests/plan';
 import { Category } from '@/types/fetchs/responses/category';
 import { Add } from '@mui/icons-material';
 import {
@@ -10,8 +10,10 @@ import {
   Grid,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CategoryIcon from '../CategoryIcon';
 import NumericalButtonInput from '../input/NumericalButtonInput';
 
@@ -21,10 +23,12 @@ export default ({
   categories,
   handleSubmit,
   handleCancel,
-}: EditPlanForm & {
+  onDataChange,
+}: GetInitialPlanForm & {
   categories: Category[];
-  handleCancel: () => {};
-  handleSubmit: (_: any) => {};
+  handleCancel: () => any;
+  handleSubmit: (_: any) => any;
+  onDataChange?: (_: any) => any;
 }) => {
   const [data, setData] = useState<{
     selectedCategories: number[];
@@ -33,6 +37,13 @@ export default ({
     days,
     selectedCategories,
   });
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
+    onDataChange && onDataChange(data);
+  }, [data]);
 
   const addOrRemoveCategory = (id: number) => {
     const isSelected =
@@ -48,7 +59,7 @@ export default ({
     <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
       <Grid container spacing={9}>
         <Grid item xs={12} md={4}>
-          <Box display={'block'} sx={{ mb: 1.5 }}>
+          <Box display={'block'} sx={{ mb: { xs: 4, md: 1.5 } }}>
             <Alert
               variant="outlined"
               sx={{ bgcolor: 'background.paper' }}
@@ -58,7 +69,7 @@ export default ({
               coming soon!
             </Alert>
           </Box>
-          <Box display="flex" alignItems="center" sx={{ mb: 7 }}>
+          <Box display="flex" alignItems="center" sx={{ mb: { xs: 4, md: 7 } }}>
             <Typography
               variant="body1"
               sx={{ mb: 0, mr: 2 }}
@@ -121,7 +132,12 @@ export default ({
             />
           </Box>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          style={{ ...(isMobile && { paddingTop: 20 }) }}
+        >
           <Typography variant="body1" sx={{ mb: 1.5 }}>
             Select your interests:
           </Typography>
@@ -142,9 +158,9 @@ export default ({
             );
           })}
         </Grid>
-        <Box sx={{ ml: 'auto', mt: 5 }}>
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 'auto', mt: 5 }}>
           <Button
-            onClick={() => handleCancel()}
+            onClick={() => handleCancel!()}
             color="secondary"
             sx={{ mr: 1, mt: 0.5 }}
           >
@@ -153,7 +169,7 @@ export default ({
           <Button
             variant="contained"
             color="primary"
-            onClick={() => handleSubmit(data)}
+            onClick={() => handleSubmit!(data)}
             sx={{ color: 'white' }}
           >
             Generate plan

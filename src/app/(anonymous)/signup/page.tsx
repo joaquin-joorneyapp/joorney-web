@@ -1,5 +1,6 @@
 'use client';
 
+import Copyright from '@/components/Copyright';
 import { AuthUserContext } from '@/contexts/AuthUserContext';
 import { registerWithGoogle, signup } from '@/fetchs/auth';
 import { parseHTTPErrors } from '@/utils/http';
@@ -19,7 +20,6 @@ import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useContext, useState } from 'react';
-import { Copyright } from '../login/page';
 
 export default function SignUp() {
   const { setUser } = useContext(AuthUserContext);
@@ -53,7 +53,12 @@ export default function SignUp() {
     setGoogleErrors([]);
     registerWithGoogle({ token: res.credential || '' })
       .then((res) => {
-        setUser(res.data);
+        setUser(res);
+        const { hash } = location;
+        if (hash && hash.includes('redirect')) {
+          router.push(hash.split(/=(.*)/s)[1]);
+          return;
+        }
         router.push('/cities');
       })
       .catch((err) => {

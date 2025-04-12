@@ -1,5 +1,6 @@
 'use client';
 
+import Copyright from '@/components/Copyright';
 import { resetPassword } from '@/fetchs/auth';
 import { parseHTTPErrors } from '@/utils/http';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -16,7 +17,6 @@ import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useState } from 'react';
-import { Copyright } from '../login/page';
 
 export default function Login() {
   const [isProcessing, setProcessing] = useState(false);

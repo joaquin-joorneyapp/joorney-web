@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const API_URL = 'https://api.joorney.app';
-const API_URL = 'http://localhost:3333';
+const API_URL = 'https://api.joorney.app';
+//const API_URL = 'http://localhost:3333';
 
 export const getBaseInstance = (baseUrl: string) =>
   axios.create({
@@ -23,19 +23,6 @@ const getAuthInstance = (baseUrl: string) => {
 
     return config;
   });
-
-  axiosAuthInstance.interceptors.response.use(
-    (res) => res,
-    async (error) => {
-      const { response } = error;
-      if (response && response.status === 401) {
-        localStorage.clear();
-        window.location.href = '/login';
-      }
-      return Promise.reject(error);
-    }
-  );
-
   return axiosAuthInstance;
 };
 

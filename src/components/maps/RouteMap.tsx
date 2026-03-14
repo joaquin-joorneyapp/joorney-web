@@ -2,11 +2,13 @@ import { MAPBOX_API_TOKEN } from '@/configs/mapbox';
 import { Activity } from '@/types/fetchs/responses/activity';
 import { City } from '@/types/fetchs/responses/city';
 import {
+  Box,
   Button,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
+  Skeleton,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -37,9 +39,8 @@ export default function RouteMap({
   const [data, setData] = useState<FeatureCollection>(featureCollection([]));
   const [selected, setSelected] = useState<number | null>(null);
   const [viewDetails, setViewDetails] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
-    null
-  );
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
     if (routes && mapRef.current) {
@@ -79,6 +80,18 @@ export default function RouteMap({
 
   return (
     <>
+      <Box sx={{ position: 'relative' }}>
+      {!mapLoaded && (
+        <Skeleton
+          variant="rectangular"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            height: '100%',
+          }}
+        />
+      )}
       <Map
         ref={mapRef}
         mapLib={import('mapbox-gl')}
@@ -88,6 +101,7 @@ export default function RouteMap({
         style={{ width: '100%', height: 600 }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={`${MAPBOX_API_TOKEN}`}
+        onLoad={() => setMapLoaded(true)}
       >
         <Source id="route" type="geojson" data={data} />
         <Layer
@@ -156,6 +170,7 @@ export default function RouteMap({
           </Marker>
         ))}
       </Map>
+      </Box>
       <Dialog
         scroll={isMobile ? 'paper' : 'body'}
         fullWidth={!isMobile}

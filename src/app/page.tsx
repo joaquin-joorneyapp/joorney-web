@@ -36,56 +36,16 @@ export default function HomePage() {
   );
 
   const cities = [
-    {
-      name: 'Paris',
-      image:
-        'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      name: 'Tokyo',
-      image:
-        'https://i.pinimg.com/736x/12/ef/8a/12ef8ad05ccdf05b1571e8f3dd138ffa.jpg',
-    },
-    {
-      name: 'Rome',
-      image:
-        'https://i.pinimg.com/1200x/37/3d/dc/373ddca9c9fc9f26dba60fb784c17a2d.jpg',
-    },
-    {
-      name: 'New York',
-      image:
-        'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      name: 'Barcelona',
-      image:
-        'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      name: 'London',
-      image:
-        'https://i.pinimg.com/1200x/6c/33/2b/6c332bfe7e4cacc4e34dd1635c8cb79c.jpg',
-    },
-    {
-      name: 'Dubai',
-      image:
-        'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      name: 'Singapore',
-      image:
-        'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      name: 'Sydney',
-      image:
-        'https://i.pinimg.com/736x/f6/76/ff/f676ff7ec7f01ced5b469b95a1f02e89.jpg',
-    },
-    {
-      name: 'Amsterdam',
-      image:
-        'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80',
-    },
+    { name: 'Paris', slug: 'paris', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80' },
+    { name: 'Tokyo', slug: 'tokyo', image: 'https://i.pinimg.com/736x/12/ef/8a/12ef8ad05ccdf05b1571e8f3dd138ffa.jpg' },
+    { name: 'Rome', slug: 'rome', image: 'https://i.pinimg.com/1200x/37/3d/dc/373ddca9c9fc9f26dba60fb784c17a2d.jpg' },
+    { name: 'New York', slug: 'new-york', image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80' },
+    { name: 'Barcelona', slug: 'barcelona', image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?auto=format&fit=crop&w=800&q=80' },
+    { name: 'London', slug: 'london', image: 'https://i.pinimg.com/1200x/6c/33/2b/6c332bfe7e4cacc4e34dd1635c8cb79c.jpg' },
+    { name: 'Dubai', slug: 'dubai', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80' },
+    { name: 'Singapore', slug: 'singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80' },
+    { name: 'Sydney', slug: 'sydney', image: 'https://i.pinimg.com/736x/f6/76/ff/f676ff7ec7f01ced5b469b95a1f02e89.jpg' },
+    { name: 'Amsterdam', slug: 'amsterdam', image: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80' },
   ];
 
   return (
@@ -129,7 +89,7 @@ export default function HomePage() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => router.push('cities/new-york/new-plan')}
+              onClick={() => router.push('/new-plan')}
               size="large"
               endIcon={<ArrowRight />}
               sx={{ mb: 9, color: 'white' }}
@@ -155,9 +115,11 @@ export default function HomePage() {
                     }}
                   >
                     <Card
+                      onClick={() => router.push(`/new-plan?city=${city.slug}&step=1`)}
                       sx={{
                         height: {xs: 220, md: 300},
                         position: 'relative',
+                        cursor: 'pointer',
                         '&:hover .overlay': {
                           opacity: 1,
                         },
@@ -398,7 +360,7 @@ export default function HomePage() {
               sx={{ color: 'white', fontSize: {md: 'x-large', xs: 'large'}, mt: {md: 3.5, xs: 6}, width: 200 }}
               variant="contained"
               color="primary"
-              onClick={() => router.push('cities/new-york/new-plan')}
+              onClick={() => router.push('/new-plan')}
             >
               Start
             </Button>

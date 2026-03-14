@@ -18,7 +18,7 @@ export default function SavedPlansPage({}) {
           variant="contained"
           size="large"
           sx={{ color: 'white' }}
-          onClick={() => router.push(`/cities/new-york/new-plan`)}
+          onClick={() => router.push('/new-plan')}
         >
           New trip
         </Button>

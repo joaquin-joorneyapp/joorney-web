@@ -43,8 +43,23 @@ export default function RouteMap({
 
   useEffect(() => {
     if (routes && mapRef.current) {
+      const validRoutes = routes.filter(
+        (route: any) => route?.trips?.[0]?.geometry
+      );
+
+      if (validRoutes.length === 0) {
+        if (activities.length === 1) {
+          mapRef.current.flyTo({
+            center: [activities[0].longitude, activities[0].latitude],
+            zoom: 14,
+            duration: 300,
+          });
+        }
+        return;
+      }
+
       const points = featureCollection(
-        routes.map((route: any) => feature(route.trips[0].geometry))
+        validRoutes.map((route: any) => feature(route.trips[0].geometry))
       );
       setData(points);
 

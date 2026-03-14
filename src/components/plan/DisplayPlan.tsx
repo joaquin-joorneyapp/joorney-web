@@ -73,19 +73,22 @@ export default ({
     if (!isPending) {
       const activities = [...plan?.schedules[currentDay].activities!];
 
-      activities.forEach((a: any, i: number) => {
-        const quotient = Math.floor(i / MAPBOX_MAX_ROUTE);
-        a.order =
-          optimizedRoutes[quotient].waypoints[
-            (i % MAPBOX_MAX_ROUTE) + quotient
-          ]['waypoint_index'] +
-          quotient * MAPBOX_MAX_ROUTE;
-      });
+      if (optimizedRoutes) {
+        activities.forEach((a: any, i: number) => {
+          const quotient = Math.floor(i / MAPBOX_MAX_ROUTE);
+          const route = optimizedRoutes[quotient];
+          if (!route?.waypoints) return;
+          a.order =
+            route.waypoints[
+              (i % MAPBOX_MAX_ROUTE) + quotient
+            ]['waypoint_index'] +
+            quotient * MAPBOX_MAX_ROUTE;
+        });
 
-      activities.sort((a, b) => a.order - b.order);
+        activities.sort((a, b) => a.order - b.order);
+      }
 
       const schedule = { ...plan?.schedules[currentDay]!, activities };
-
       setOrderedSchedule(schedule);
     }
   }, [optimizedRoutes]);

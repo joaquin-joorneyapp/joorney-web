@@ -404,7 +404,7 @@ export default function DisplayPlan({
                       variant="outlined"
                       startIcon={<Add />}
                       onClick={() => setAddActivityOpen(true)}
-                      disabled={availableToAdd.length === 0}
+                      disabled={availableToAdd.length === 0 || isSaving}
                     >
                       {availableToAdd.length === 0 ? 'No more activities available' : 'Add activity'}
                     </Button>
@@ -516,7 +516,7 @@ export default function DisplayPlan({
               <IconButton
                 color="primary"
                 onClick={() => setAddActivityOpen(true)}
-                disabled={availableToAdd.length === 0}
+                disabled={availableToAdd.length === 0 || isSaving}
                 sx={{ border: '1px solid', borderColor: 'primary.main', borderRadius: 1, height: 40, width: 40 }}
               >
                 <Add />

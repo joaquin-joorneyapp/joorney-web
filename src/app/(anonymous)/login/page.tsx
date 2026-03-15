@@ -113,7 +113,9 @@ function Login() {
             alignItems: 'center',
           }}
         >
-          <img src="/logo.svg" alt="logo" style={{ marginTop: '1rem' }} />
+          <Link href="/" style={{ cursor: 'pointer' }}>
+            <img src="/logo.svg" alt="logo" style={{ marginTop: '1rem' }} />
+          </Link>
           <Avatar sx={{ m: 1, mt: 10, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>

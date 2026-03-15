@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
+  Stack,
   Typography,
 } from '@mui/material';
 import AutoScroll from 'embla-carousel-auto-scroll';
@@ -26,9 +27,18 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useContext, useEffect } from 'react';
+import { AuthUserContext } from '@/contexts/AuthUserContext';
 
 export default function HomePage() {
   const router = useRouter();
+  const { user } = useContext(AuthUserContext);
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/saved-plans');
+    }
+  }, [user]);
 
   const [emblaRef] = useEmblaCarousel(
     { loop: true, dragFree: true, containScroll: 'trimSnaps' },
@@ -60,6 +70,16 @@ export default function HomePage() {
           minHeight: '100vh'
         }}
       >
+        {!user && (
+          <Box sx={{ position: 'absolute', top: 20, right: 24, zIndex: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Button href="/login" sx={{ textTransform: 'none', fontWeight: 500, color: 'text.secondary', p: 0, minWidth: 0 }}>
+              Log in
+            </Button>
+            <Button href="/signup" sx={{ textTransform: 'none', fontWeight: 500, color: 'text.secondary', p: 0, minWidth: 0 }}>
+              Sign up
+            </Button>
+          </Box>
+        )}
         <Container maxWidth={false}>
           <Box sx={{ textAlign: 'center'}}>
             <Box

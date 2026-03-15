@@ -141,6 +141,7 @@ export default function DisplayPlan({
     setIsSaving(true);
     onSave({ ...plan!, schedules: managedSchedules })
       .then(() => setShowSuccessfullySaved(true))
+      .catch(() => {}) // errors (e.g. 401 → redirect to login) handled by parent
       .finally(() => setIsSaving(false));
   };
 

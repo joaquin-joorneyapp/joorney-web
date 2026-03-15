@@ -1,6 +1,7 @@
 'use client';
 import DailyPlanTimeline from '@/components/DailyPlanTimeline';
 import RouteMap from '@/components/maps/RouteMap';
+import CategoryIcon from '@/components/CategoryIcon';
 import TitleSkeleton from '@/components/skeletons/GenericTitle';
 import { MAPBOX_MAX_ROUTE } from '@/configs/mapbox';
 import { getActivities } from '@/fetchs/activity';
@@ -204,12 +205,11 @@ export default function DisplayPlan({
         : allCategories!.filter((c) => plan.categories.includes(c.id))
       : [];
 
-  const visibleCategories = categories ? categories.slice(0, 3) : [];
-  const hiddenCategories = categories ? categories.slice(3) : [];
-  const categorySummary =
-    categories && categories.length > 0
-      ? visibleCategories.map((c) => c.title).join(' · ')
-      : null;
+  const MAX_VISIBLE_CATEGORIES = 6;
+  const visibleCategories = categories ? categories.slice(0, MAX_VISIBLE_CATEGORIES) : [];
+  const hiddenCategories = categories ? categories.slice(MAX_VISIBLE_CATEGORIES) : [];
+
+  const CATEGORY_COLORS = ['#FF8A65', '#4DB6AC', '#64B5F6', '#81C784', '#BA68C8', '#FFB74D', '#F06292', '#4DD0E1'];
 
   const currentSchedule = managedSchedules?.[currentDay] ?? null;
 
@@ -223,25 +223,63 @@ export default function DisplayPlan({
   // ── Shared sub-components ──
 
   const categorySubtitle = (
-    <Box sx={{ mt: 0.5 }}>
+    <Box sx={{ mt: 1 }}>
       {isLoadingCategories ? (
-        <Skeleton width={220} height={22} />
-      ) : categorySummary ? (
-        <Typography variant="body2" color="text.secondary">
-          {categorySummary}
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <Skeleton key={i} variant="circular" width={28} height={28} />
+          ))}
+        </Box>
+      ) : categories.length > 0 ? (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {visibleCategories.map((cat, i) => (
+            <Tooltip key={cat.id} title={cat.title} arrow>
+              <Box
+                sx={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  bgcolor: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  ml: i > 0 ? -0.5 : 0,
+                  border: '2px solid white',
+                  cursor: 'default',
+                  zIndex: MAX_VISIBLE_CATEGORIES - i,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                  color: 'white',
+                }}
+              >
+                <CategoryIcon category={cat.name} sx={{ fontSize: 16 }} />
+              </Box>
+            </Tooltip>
+          ))}
           {hiddenCategories.length > 0 && (
             <Tooltip title={hiddenCategories.map((c) => c.title).join(', ')} arrow>
-              <Typography
-                component="span"
-                variant="body2"
-                color="text.secondary"
-                sx={{ ml: 0.5, cursor: 'default', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+              <Box
+                sx={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  bgcolor: 'grey.300',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  ml: -0.5,
+                  border: '2px solid white',
+                  cursor: 'default',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                }}
               >
-                +{hiddenCategories.length} more
-              </Typography>
+                +{hiddenCategories.length}
+              </Box>
             </Tooltip>
           )}
-        </Typography>
+        </Box>
       ) : null}
     </Box>
   );

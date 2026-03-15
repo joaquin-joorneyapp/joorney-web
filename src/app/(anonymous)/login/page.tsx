@@ -63,11 +63,6 @@ function Login() {
 
   const handlePostLogin = async (res: any) => {
     setUser(res);
-    const redirectParam = params.get('redirect');
-    if (redirectParam) {
-      router.push(redirectParam);
-      return;
-    }
     const { hash } = location;
     if (hash && hash.includes('redirect')) {
       router.push(hash.split(/=(.*)/s)[1]);

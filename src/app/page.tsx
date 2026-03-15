@@ -26,20 +26,9 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useContext } from 'react';
-import { AuthUserContext } from '@/contexts/AuthUserContext';
 
 export default function HomePage() {
   const router = useRouter();
-  const { user } = useContext(AuthUserContext);
-
-  const navigateTo = (path: string) => {
-    if (user?.isAuthenticated) {
-      router.push(path);
-    } else {
-      router.push(`/login?redirect=${encodeURIComponent(path)}`);
-    }
-  };
 
   const [emblaRef] = useEmblaCarousel(
     { loop: true, dragFree: true, containScroll: 'trimSnaps' },
@@ -100,7 +89,7 @@ export default function HomePage() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => navigateTo('/new-plan')}
+              onClick={() => router.push('/new-plan')}
               size="large"
               endIcon={<ArrowRight />}
               sx={{ mb: 9, color: 'white' }}
@@ -126,7 +115,7 @@ export default function HomePage() {
                     }}
                   >
                     <Card
-                      onClick={() => navigateTo(`/new-plan?city=${city.slug}&step=1`)}
+                      onClick={() => router.push(`/new-plan?city=${city.slug}&step=1`)}
                       sx={{
                         height: {xs: 220, md: 300},
                         position: 'relative',
@@ -371,7 +360,7 @@ export default function HomePage() {
               sx={{ color: 'white', fontSize: {md: 'x-large', xs: 'large'}, mt: {md: 3.5, xs: 6}, width: 200 }}
               variant="contained"
               color="primary"
-              onClick={() => navigateTo('/new-plan')}
+              onClick={() => router.push('/new-plan')}
             >
               Start
             </Button>

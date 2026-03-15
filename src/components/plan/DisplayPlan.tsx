@@ -8,7 +8,7 @@ import { getCategories } from '@/fetchs/category';
 import { getOptimizedRoute } from '@/fetchs/map';
 import { Activity } from '@/types/fetchs/responses/activity';
 import { DailySchedule, Plan } from '@/types/fetchs/responses/plan';
-import { Add, Edit, List, MapOutlined, Settings, ViewAgenda, ViewList, ViewModule, ViewStream } from '@mui/icons-material';
+import { Add, Edit, List, MapOutlined, Search, Settings, ViewAgenda, ViewList, ViewModule, ViewStream } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
@@ -24,6 +24,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  InputAdornment,
   ListItem,
   ListItemText,
   Paper,
@@ -32,6 +33,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -88,6 +90,8 @@ export default function DisplayPlan({
   // Add activity dialog
   const [addActivityOpen, setAddActivityOpen] = useState(false);
   const [modalCompact, setModalCompact] = useState(false);
+  const [modalSearch, setModalSearch] = useState('');
+  const [modalCategoryFilter, setModalCategoryFilter] = useState<number[]>([]);
 
   // Sync managed schedules when plan loads
   useEffect(() => {
@@ -517,107 +521,170 @@ export default function DisplayPlan({
       </Paper>
 
       {/* ── Add activity dialog ── */}
-      {!readOnly && (
-        <Dialog open={addActivityOpen} onClose={() => setAddActivityOpen(false)} maxWidth="md" fullWidth>
-          <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 2 }}>
-            <span>Add activity — Day {currentDay + 1}</span>
-            <ToggleButtonGroup
-              value={modalCompact ? 'compact' : 'expanded'}
-              exclusive
-              size="small"
-              onChange={(_, v) => { if (v) setModalCompact(v === 'compact'); }}
-            >
-              <ToggleButton value="compact"><Tooltip title="Compact"><ViewStream fontSize="small" /></Tooltip></ToggleButton>
-              <ToggleButton value="expanded"><Tooltip title="Expanded"><ViewModule fontSize="small" /></Tooltip></ToggleButton>
-            </ToggleButtonGroup>
-          </DialogTitle>
-          <DialogContent dividers sx={{ p: modalCompact ? 0 : 2 }}>
-            {availableToAdd.length === 0 ? (
-              <Typography color="text.secondary" sx={{ p: 2 }}>No more activities available for this city.</Typography>
-            ) : modalCompact ? (
-              /* ── Compact view ── */
-              <MuiList disablePadding>
-                {availableToAdd.map((activity, i) => (
-                  <Box key={activity.id}>
-                    <ListItem
-                      secondaryAction={
-                        <Button size="small" variant="outlined" onClick={() => handleAddActivity(activity)}>
-                          Add
-                        </Button>
-                      }
-                    >
-                      <ListItemText
-                        primary={activity.title}
-                        secondary={
-                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.3 }}>
-                            <Typography variant="caption" color="text.secondary">{activity.duration} min</Typography>
-                            {activity.categories?.slice(0, 2).map((c: any) => (
-                              <Chip key={c.id} label={c.name} size="small" sx={{ height: 16, fontSize: 10 }} />
-                            ))}
-                          </Box>
+      {!readOnly && (() => {
+        const filteredActivities = availableToAdd.filter((a) => {
+          const matchesSearch = !modalSearch || a.title.toLowerCase().includes(modalSearch.toLowerCase());
+          const matchesCategory = modalCategoryFilter.length === 0 ||
+            a.categories?.some((c: any) => modalCategoryFilter.includes(c.id));
+          return matchesSearch && matchesCategory;
+        });
+
+        // Collect all unique categories from available activities
+        const modalCategories = allCategories?.filter((cat) =>
+          availableToAdd.some((a) => a.categories?.some((c: any) => c.id === cat.id))
+        ) ?? [];
+
+        return (
+          <Dialog
+            open={addActivityOpen}
+            onClose={() => { setAddActivityOpen(false); setModalSearch(''); setModalCategoryFilter([]); }}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 2 }}>
+              <span>Add activity — Day {currentDay + 1}</span>
+              <ToggleButtonGroup
+                value={modalCompact ? 'compact' : 'expanded'}
+                exclusive
+                size="small"
+                onChange={(_, v) => { if (v) setModalCompact(v === 'compact'); }}
+              >
+                <ToggleButton value="compact"><Tooltip title="Compact"><ViewStream fontSize="small" /></Tooltip></ToggleButton>
+                <ToggleButton value="expanded"><Tooltip title="Expanded"><ViewModule fontSize="small" /></Tooltip></ToggleButton>
+              </ToggleButtonGroup>
+            </DialogTitle>
+
+            {/* ── Search + category filters ── */}
+            <Box sx={{ px: 3, pt: 1.5, pb: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search activities…"
+                value={modalSearch}
+                onChange={(e) => setModalSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 1.5 }}
+              />
+              {modalCategories.length > 0 && (
+                <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                  {modalCategories.map((cat) => {
+                    const active = modalCategoryFilter.includes(cat.id);
+                    return (
+                      <Chip
+                        key={cat.id}
+                        label={cat.title}
+                        size="small"
+                        color={active ? 'primary' : 'default'}
+                        variant={active ? 'filled' : 'outlined'}
+                        onClick={() =>
+                          setModalCategoryFilter((prev) =>
+                            active ? prev.filter((id) => id !== cat.id) : [...prev, cat.id]
+                          )
                         }
+                        sx={{ cursor: 'pointer' }}
                       />
-                    </ListItem>
-                    {i < availableToAdd.length - 1 && <Divider />}
-                  </Box>
-                ))}
-              </MuiList>
-            ) : (
-              /* ── Expanded view ── */
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                {availableToAdd.map((activity) => {
-                  const imgUrl = activity.pictures?.[0]?.url ? buildImageUrl(activity.pictures[0].url) : null;
-                  return (
-                    <Card key={activity.id} variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
-                      {imgUrl && (
-                        <CardMedia
-                          component="img"
-                          image={imgUrl}
-                          alt={activity.title}
-                          sx={{ height: 140, objectFit: 'cover' }}
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
+
+            <DialogContent sx={{ p: modalCompact ? 0 : 2 }}>
+              {filteredActivities.length === 0 ? (
+                <Typography color="text.secondary" sx={{ p: 2 }}>
+                  {availableToAdd.length === 0 ? 'No more activities available for this city.' : 'No activities match your search.'}
+                </Typography>
+              ) : modalCompact ? (
+                /* ── Compact view ── */
+                <MuiList disablePadding>
+                  {filteredActivities.map((activity, i) => (
+                    <Box key={activity.id}>
+                      <ListItem
+                        secondaryAction={
+                          <Button size="small" variant="outlined" onClick={() => handleAddActivity(activity)}>
+                            Add
+                          </Button>
+                        }
+                      >
+                        <ListItemText
+                          primary={activity.title}
+                          secondary={
+                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.3 }}>
+                              <Typography variant="caption" color="text.secondary">{activity.duration} min</Typography>
+                              {activity.categories?.slice(0, 2).map((c: any) => (
+                                <Chip key={c.id} label={c.title} size="small" sx={{ height: 16, fontSize: 10 }} />
+                              ))}
+                            </Box>
+                          }
                         />
-                      )}
-                      <CardContent sx={{ flex: 1, pb: 1 }}>
-                        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                          {activity.title}
-                        </Typography>
-                        {activity.categories?.length > 0 && (
-                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
-                            {activity.categories.slice(0, 3).map((c: any) => (
-                              <Chip key={c.id} label={c.name} size="small" color="primary" variant="outlined" />
-                            ))}
-                          </Box>
+                      </ListItem>
+                      {i < filteredActivities.length - 1 && <Divider />}
+                    </Box>
+                  ))}
+                </MuiList>
+              ) : (
+                /* ── Expanded view ── */
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  {filteredActivities.map((activity) => {
+                    const imgUrl = activity.pictures?.[0]?.url ? buildImageUrl(activity.pictures[0].url) : null;
+                    return (
+                      <Card key={activity.id} variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {imgUrl && (
+                          <CardMedia
+                            component="img"
+                            image={imgUrl}
+                            alt={activity.title}
+                            sx={{ height: 140, objectFit: 'cover' }}
+                          />
                         )}
-                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                          {activity.duration} min
-                        </Typography>
-                        {activity.description && (
-                          <Typography variant="body2" color="text.secondary" sx={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}>
-                            {activity.description}
+                        <CardContent sx={{ flex: 1, pb: 1 }}>
+                          <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                            {activity.title}
                           </Typography>
-                        )}
-                      </CardContent>
-                      <Box sx={{ px: 2, pb: 2 }}>
-                        <Button fullWidth variant="outlined" size="small" onClick={() => handleAddActivity(activity)}>
-                          Add to Day {currentDay + 1}
-                        </Button>
-                      </Box>
-                    </Card>
-                  );
-                })}
-              </Box>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setAddActivityOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      )}
+                          {activity.categories?.length > 0 && (
+                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
+                              {activity.categories.slice(0, 3).map((c: any) => (
+                                <Chip key={c.id} label={c.title} size="small" color="primary" variant="outlined" />
+                              ))}
+                            </Box>
+                          )}
+                          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                            {activity.duration} min
+                          </Typography>
+                          {activity.description && (
+                            <Typography variant="body2" color="text.secondary" sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}>
+                              {activity.description}
+                            </Typography>
+                          )}
+                        </CardContent>
+                        <Box sx={{ px: 2, pb: 2 }}>
+                          <Button fullWidth variant="outlined" size="small" onClick={() => handleAddActivity(activity)}>
+                            Add to Day {currentDay + 1}
+                          </Button>
+                        </Box>
+                      </Card>
+                    );
+                  })}
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setAddActivityOpen(false); setModalSearch(''); setModalCategoryFilter([]); }}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        );
+      })()}
 
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}

@@ -16,11 +16,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 const STEPS = ['Destination', 'Duration', 'Interests'];
 
-export default function NewPlanPage() {
+function NewPlanContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: cities, isLoading: citiesLoading } = getCities();
@@ -249,5 +249,13 @@ export default function NewPlanPage() {
         </Box>
       </Paper>
     </Box>
+  );
+}
+
+export default function NewPlanPage() {
+  return (
+    <Suspense>
+      <NewPlanContent />
+    </Suspense>
   );
 }

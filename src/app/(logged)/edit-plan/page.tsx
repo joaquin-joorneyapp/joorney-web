@@ -13,9 +13,9 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
-export default function EditPlanPage() {
+function EditPlanContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: categories, isLoading: categoriesLoading } = getCategories();
@@ -117,5 +117,13 @@ export default function EditPlanPage() {
         </Button>
       </Paper>
     </Box>
+  );
+}
+
+export default function EditPlanPage() {
+  return (
+    <Suspense>
+      <EditPlanContent />
+    </Suspense>
   );
 }

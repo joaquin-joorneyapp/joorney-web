@@ -255,7 +255,7 @@ export default function DisplayPlan({
     return new Date(year, month - 1, day); // local midnight — no timezone shift
   };
 
-  const dayTabs = (
+  const dayTabs = plan ? (
     <Tabs
       value={currentDay}
       onChange={handleTabChange}
@@ -263,28 +263,31 @@ export default function DisplayPlan({
       allowScrollButtonsMobile
       variant="scrollable"
     >
-      {plan
-        ? Array.from({ length: plan.days }, (_, i) => {
-            // Prefer plan.start → explicit startDate prop → per-schedule startAt
-            const baseDate = plan.startDate
-              ? addDays(parseLocalDate(plan.startDate)!, i)
-              : startDate
-              ? addDays(parseLocalDate(startDate)!, i)
-              : parseLocalDate(plan.schedules[i]?.startAt ?? null);
-            const label = baseDate ? (
-              <Box sx={{ textAlign: 'center', lineHeight: 1.2 }}>
-                <Typography variant="caption" display="block" color="inherit" sx={{ opacity: 0.7 }}>
-                  Day {i + 1}
-                </Typography>
-                <Typography variant="body2" fontWeight={600} color="inherit">
-                  {format(baseDate, 'MMM d')}
-                </Typography>
-              </Box>
-            ) : `Day ${i + 1}`;
-            return <Tab key={i} label={label} />;
-          })
-        : Array.from({ length: 3 }, (_, i) => <Skeleton width={75} height={60} key={i} sx={{ mr: 1 }} />)}
+      {Array.from({ length: plan.days }, (_, i) => {
+        const baseDate = plan.startDate
+          ? addDays(parseLocalDate(plan.startDate)!, i)
+          : startDate
+          ? addDays(parseLocalDate(startDate)!, i)
+          : parseLocalDate(plan.schedules[i]?.startAt ?? null);
+        const label = baseDate ? (
+          <Box sx={{ textAlign: 'center', lineHeight: 1.2 }}>
+            <Typography variant="caption" display="block" color="inherit" sx={{ opacity: 0.7 }}>
+              Day {i + 1}
+            </Typography>
+            <Typography variant="body2" fontWeight={600} color="inherit">
+              {format(baseDate, 'MMM d')}
+            </Typography>
+          </Box>
+        ) : `Day ${i + 1}`;
+        return <Tab key={i} label={label} />;
+      })}
     </Tabs>
+  ) : (
+    <Box sx={{ display: 'flex' }}>
+      {Array.from({ length: 3 }, (_, i) => (
+        <Skeleton width={75} height={60} key={i} sx={{ mr: 1 }} />
+      ))}
+    </Box>
   );
 
   // ── Render ──

@@ -55,8 +55,10 @@ export default function Navbar() {
     setAnchorElUser(event.currentTarget);
   };
 
+  const handleCloseNavMenu = () => setAnchorElNav(null);
+
   const handleClickNavMenu = (href: string) => {
-    if(href) router.push(href);
+    router.push(href);
     setAnchorElNav(null);
   };
 
@@ -112,7 +114,7 @@ export default function Navbar() {
                 horizontal: 'left',
               }}
               open={Boolean(anchorElNav)}
-              onClose={handleClickNavMenu}
+              onClose={handleCloseNavMenu}
               sx={{
                 display: { xs: 'block', md: 'none' },
               }}

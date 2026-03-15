@@ -37,9 +37,14 @@ function Login() {
   const [googleErrors, setGoogleErrors] = useState<any[]>([]);
   const [isEmailValidated, setEmailValidated] = useState(true);
   const [isValidating, setValidating] = useState(true);
+  const [locationHash, setLocationHash] = useState('');
   const { refetch } = countPlans();
   const router = useRouter();
   const params = useSearchParams();
+
+  useEffect(() => {
+    setLocationHash(window.location.hash);
+  }, []);
 
   const token = params.get('token');
 
@@ -188,7 +193,7 @@ function Login() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href={`/signup${location.hash}`} variant="body2">
+                <Link href={`/signup${locationHash}`} variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

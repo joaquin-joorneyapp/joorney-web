@@ -209,7 +209,7 @@ export default function DisplayPlan({
   const visibleCategories = categories ? categories.slice(0, MAX_VISIBLE_CATEGORIES) : [];
   const hiddenCategories = categories ? categories.slice(MAX_VISIBLE_CATEGORIES) : [];
 
-  const CATEGORY_COLORS = ['#FF8A65', '#4DB6AC', '#64B5F6', '#81C784', '#BA68C8', '#FFB74D', '#F06292', '#4DD0E1'];
+  const CATEGORY_COLOR = '#F67D56';
 
   const currentSchedule = managedSchedules?.[currentDay] ?? null;
 
@@ -239,16 +239,16 @@ export default function DisplayPlan({
                   width: 28,
                   height: 28,
                   borderRadius: '50%',
-                  bgcolor: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+                  bgcolor: 'white',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   ml: i > 0 ? -0.5 : 0,
-                  border: '2px solid white',
+                  border: '2px solid #F67D56',
                   cursor: 'default',
                   zIndex: MAX_VISIBLE_CATEGORIES - i,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                  color: 'white',
+                  color: '#222231cf',
                 }}
               >
                 <CategoryIcon category={cat.name} sx={{ fontSize: 16 }} />

@@ -1,4 +1,5 @@
 import { Plan } from '@/types/fetchs/responses/plan';
+import { buildImageUrl } from '@/utils/image';
 import { Button, Card, CardContent, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import Image from 'next/image';
@@ -19,7 +20,7 @@ export default function PlanCard({ plan }: Props) {
     >
       <Image
         alt={plan.city.title}
-        src={plan.city.pictures[2].url}
+        src={buildImageUrl(plan.city.pictures[0]?.url ?? plan.city.pictures[1]?.url ?? plan.city.pictures[2]?.url ?? '')}
         width={640}
         height={480}
         style={{

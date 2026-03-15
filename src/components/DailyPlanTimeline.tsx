@@ -166,7 +166,7 @@ export default function DailyPlanTimeline({
       </TimelineOppositeContent>
       <TimelineSeparator>
         <TimelineDot color="primary" variant="outlined">
-          <CategoryIcon category={activity.categories[0]?.name} color="secondary" />
+          <CategoryIcon category={activity.categories?.[0]?.name} color="secondary" />
         </TimelineDot>
         {i + 1 < schedule.activities.length && <TimelineConnector />}
       </TimelineSeparator>

@@ -4,9 +4,10 @@ import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 export const getActivities = (cityId: number): UseQueryResult<Activity[]> =>
   useQuery({
-    queryKey: ['activities'],
+    queryKey: ['activities', cityId],
     queryFn: () =>
       authAxios.get(`/cities/${cityId}/activities`).then((res) => res.data),
+    enabled: !!cityId,
   });
 
 export const getActivity = (

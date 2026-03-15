@@ -3,6 +3,7 @@ import DailyPlanTimeline from '@/components/DailyPlanTimeline';
 import RouteMap from '@/components/maps/RouteMap';
 import TitleSkeleton from '@/components/skeletons/GenericTitle';
 import { MAPBOX_MAX_ROUTE } from '@/configs/mapbox';
+import { getActivities } from '@/fetchs/activity';
 import { getCategories } from '@/fetchs/category';
 import { getOptimizedRoute } from '@/fetchs/map';
 import { Activity } from '@/types/fetchs/responses/activity';
@@ -93,7 +94,7 @@ export default function DisplayPlan({
   }, [plan]);
 
   const { data: optimizedRoutes, isPending } = getOptimizedRoute(
-    plan?.schedules[currentDay]?.activities
+    managedSchedules?.[currentDay]?.activities
   );
 
   // Apply route optimization ordering (only for non-manually-edited days, and only in editable mode)
@@ -177,7 +178,7 @@ export default function DisplayPlan({
     setManagedSchedules((prev) => {
       if (!prev) return prev;
       const schedules = prev.map((s) => ({ ...s, activities: [...s.activities] }));
-      schedules[currentDay].activities.push(activity);
+      schedules[currentDay].activities.unshift(activity);
       return schedules;
     });
     setAddActivityOpen(false);
@@ -200,9 +201,12 @@ export default function DisplayPlan({
 
   const currentSchedule = managedSchedules?.[currentDay] ?? null;
 
-  // Activities available to add (not already in current day)
-  const currentActivityIds = new Set(currentSchedule?.activities.map((a) => a.id) ?? []);
-  const availableToAdd = (plan?.otherOptions ?? []).filter((a) => !currentActivityIds.has(a.id));
+  // Fetch all activities for this city, then filter out anything already scheduled across all days
+  const { data: allCityActivities } = getActivities(plan?.city.id!);
+  const scheduledActivityIds = new Set(
+    (managedSchedules ?? []).flatMap((s) => s.activities.map((a) => a.id))
+  );
+  const availableToAdd = (allCityActivities ?? []).filter((a) => !scheduledActivityIds.has(a.id));
 
   // ── Shared sub-components ──
 
@@ -500,7 +504,7 @@ export default function DisplayPlan({
               onClick={onSaveClicked}
               loading={isSaving}
             >
-              {saveButtonLabel}
+              Save
             </LoadingButton>
           </>
         )}

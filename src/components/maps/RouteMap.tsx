@@ -76,7 +76,7 @@ export default function RouteMap({
     } else {
       setData(featureCollection([]));
     }
-  }, [activities, mapRef.current]);
+  }, [routes, activities, mapRef.current]);
 
   return (
     <>

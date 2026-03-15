@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://api.joorney.app';
-//const API_URL = 'http://localhost:3333';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
 
 export const getBaseInstance = (baseUrl: string) =>
   axios.create({

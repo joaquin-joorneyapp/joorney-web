@@ -19,6 +19,7 @@ export default function DurationPicker({
   onStartDateChange,
   today,
   attempted,
+  noPaper = false,
 }: {
   days: number;
   onDaysChange: (days: number) => void;
@@ -26,19 +27,11 @@ export default function DurationPicker({
   onStartDateChange: (date: string) => void;
   today: string;
   attempted?: boolean;
+  /** Strip the outer Paper wrapper (e.g. when used inside a Dialog) */
+  noPaper?: boolean;
 }) {
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 3, md: 5 },
-        mb: 4,
-        borderRadius: 4,
-        border: '1px solid',
-        borderColor: 'divider',
-        bgcolor: 'white',
-      }}
-    >
+  const inner = (
+    <>
       <SectionHeader
         icon={<CalendarToday sx={{ fontSize: 20 }} />}
         title="Trip duration & start date"
@@ -62,7 +55,7 @@ export default function DurationPicker({
               justifyContent: 'center',
               gap: 3,
               py: 3,
-              px: 4,
+              px: 2,
               bgcolor: '#FFF3E0',
               borderRadius: 4,
             }}
@@ -73,6 +66,7 @@ export default function DurationPicker({
               sx={{
                 bgcolor: 'white',
                 boxShadow: 1,
+                flexShrink: 0,
                 width: 44,
                 height: 44,
                 '&:hover': { bgcolor: 'white', boxShadow: 2 },
@@ -81,7 +75,7 @@ export default function DurationPicker({
             >
               <Remove />
             </IconButton>
-            <Box sx={{ textAlign: 'center', minWidth: 90 }}>
+            <Box sx={{ textAlign: 'center', minWidth: 70 }}>
               <Typography
                 variant="h2"
                 fontWeight={700}
@@ -100,6 +94,7 @@ export default function DurationPicker({
               sx={{
                 bgcolor: 'white',
                 boxShadow: 1,
+                flexShrink: 0,
                 width: 44,
                 height: 44,
                 '&:hover': { bgcolor: 'white', boxShadow: 2 },
@@ -144,6 +139,24 @@ export default function DurationPicker({
           )}
         </Grid>
       </Grid>
+    </>
+  );
+
+  if (noPaper) return <Box sx={{ mb: 2 }}>{inner}</Box>;
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: { xs: 3, md: 5 },
+        mb: 4,
+        borderRadius: 4,
+        border: '1px solid',
+        borderColor: 'divider',
+        bgcolor: 'white',
+      }}
+    >
+      {inner}
     </Paper>
   );
 }

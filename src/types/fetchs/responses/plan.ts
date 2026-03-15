@@ -4,10 +4,11 @@ import { City } from './city';
 export interface Plan {
   id?: number;
   city: City;
-  start: Date | null;
+  startDate: Date | null;
   days: number;
   schedules: DailySchedule[];
   categories: number[];
+  otherOptions?: Activity[];
 }
 
 export interface DailySchedule {

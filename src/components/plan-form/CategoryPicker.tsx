@@ -18,12 +18,15 @@ export default function CategoryPicker({
   selectedCategories,
   onCategoriesChange,
   attempted,
+  noPaper = false,
 }: {
   categories: Category[] | undefined;
   isLoading: boolean;
   selectedCategories: number[];
   onCategoriesChange: (ids: number[]) => void;
   attempted?: boolean;
+  /** Strip the outer Paper wrapper (e.g. when used inside a Dialog) */
+  noPaper?: boolean;
 }) {
   const toggle = (id: number) => {
     onCategoriesChange(
@@ -36,18 +39,26 @@ export default function CategoryPicker({
   const allSelected =
     !!categories?.length && categories.every((c) => selectedCategories.includes(c.id));
 
+  const Wrapper = noPaper
+    ? ({ children }: { children: React.ReactNode }) => <Box sx={{ mb: 2 }}>{children}</Box>
+    : ({ children }: { children: React.ReactNode }) => (
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 5 },
+            mb: 4,
+            borderRadius: 4,
+            border: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'white',
+          }}
+        >
+          {children}
+        </Paper>
+      );
+
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 3, md: 5 },
-        mb: 4,
-        borderRadius: 4,
-        border: '1px solid',
-        borderColor: 'divider',
-        bgcolor: 'white',
-      }}
-    >
+    <Wrapper>
       <SectionHeader
         icon={<FavoriteBorder sx={{ fontSize: 22 }} />}
         title="What do you love?"
@@ -162,6 +173,6 @@ export default function CategoryPicker({
           Please select at least 3 interests to personalise your trip.
         </Alert>
       )}
-    </Paper>
+    </Wrapper>
   );
 }

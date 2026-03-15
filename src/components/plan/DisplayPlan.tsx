@@ -5,14 +5,22 @@ import TitleSkeleton from '@/components/skeletons/GenericTitle';
 import { MAPBOX_MAX_ROUTE } from '@/configs/mapbox';
 import { getCategories } from '@/fetchs/category';
 import { getOptimizedRoute } from '@/fetchs/map';
+import { Activity } from '@/types/fetchs/responses/activity';
 import { DailySchedule, Plan } from '@/types/fetchs/responses/plan';
-import { List, MapOutlined } from '@mui/icons-material';
+import { Add, Edit, List, MapOutlined, Settings, ViewAgenda, ViewList } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Box,
   Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  ListItem,
+  ListItemText,
   Paper,
   Skeleton,
   Snackbar,
@@ -25,44 +33,74 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  List as MuiList,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { addDays, format } from 'date-fns';
+import { useEffect, useRef, useState } from 'react';
 
-export default ({
+export default function DisplayPlan({
   plan,
-  handleChangedPlan,
   onSave,
   saveButtonLabel = 'Save trip',
+  onBack,
+  backLabel = 'Back',
+  onEdit,
+  readOnly = false,
+  onSettings,
+  startDate,
 }: {
-  handleChangedPlan: any;
   plan: Plan | null;
-  onSave: (_: any) => Promise<any>;
+  onSave?: (_: any) => Promise<any>;
   saveButtonLabel?: string;
-}) => {
+  /** Called when the Back button is clicked (editable mode) */
+  onBack?: () => void;
+  backLabel?: string;
+  /** Called when "Edit trip" is clicked (read-only mode) */
+  onEdit?: () => void;
+  readOnly?: boolean;
+  /** Called when "Settings" button is clicked (editable mode, optional) */
+  onSettings?: () => void;
+  /** Explicit start date (YYYY-MM-DD) to use for tab labels when plan.start is not populated */
+  startDate?: string;
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const router = useRouter();
-  const { data: allCategories, isLoading: isLoadingCategories } =
-    getCategories();
+  const { data: allCategories, isLoading: isLoadingCategories } = getCategories();
   const [currentDay, setCurrentDay] = useState(0);
   const [selectedActivity, setSelectedActivity] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [viewMode, setViewMode] = useState('list');
   const [showSuccessfullySaved, setShowSuccessfullySaved] = useState(false);
+  const [compact, setCompact] = useState(false);
+
+  // Managed schedules — local editable copy of plan.schedules
+  const [managedSchedules, setManagedSchedules] = useState<DailySchedule[] | null>(null);
+  // Track which days have been manually edited (skip route-optimization reorder for those)
+  const editedDays = useRef<Set<number>>(new Set());
+
+  // Add activity dialog
+  const [addActivityOpen, setAddActivityOpen] = useState(false);
+
+  // Sync managed schedules when plan loads
+  useEffect(() => {
+    if (plan) {
+      setManagedSchedules(
+        plan.schedules.map((s) => ({ ...s, activities: [...s.activities] }))
+      );
+      editedDays.current = new Set();
+    }
+  }, [plan]);
 
   const { data: optimizedRoutes, isPending } = getOptimizedRoute(
     plan?.schedules[currentDay]?.activities
   );
 
-  const [orderedSchedule, setOrderedSchedule] = useState<DailySchedule | null>(
-    null
-  );
-
+  // Apply route optimization ordering (only for non-manually-edited days, and only in editable mode)
   useEffect(() => {
-    if (!isPending) {
-      const activities = [...plan?.schedules[currentDay].activities!];
+    if (readOnly) return;
+    if (!isPending && managedSchedules && !editedDays.current.has(currentDay)) {
+      const activities = [...managedSchedules[currentDay].activities];
 
       if (optimizedRoutes) {
         activities.forEach((a: any, i: number) => {
@@ -70,48 +108,82 @@ export default ({
           const route = optimizedRoutes[quotient];
           if (!route?.waypoints) return;
           a.order =
-            route.waypoints[
-              (i % MAPBOX_MAX_ROUTE) + quotient
-            ]['waypoint_index'] +
+            route.waypoints[(i % MAPBOX_MAX_ROUTE) + quotient]['waypoint_index'] +
             quotient * MAPBOX_MAX_ROUTE;
         });
-
         activities.sort((a, b) => a.order - b.order);
       }
 
-      const schedule = { ...plan?.schedules[currentDay]!, activities };
-      setOrderedSchedule(schedule);
+      setManagedSchedules((prev) =>
+        prev!.map((s, i) => (i === currentDay ? { ...s, activities } : s))
+      );
     }
   }, [optimizedRoutes]);
 
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setCurrentDay(newValue);
   };
 
-  const handleEdit = () => {
-    if (!plan) return;
-    const params = new URLSearchParams();
-    params.set('city', plan.city.name);
-    params.set('cityTitle', plan.city.title);
-    params.set('days', String(plan.days));
-    for (const id of plan.categories) {
-      params.append('categories', String(id));
-    }
-    if (plan.id) {
-      params.set('planId', String(plan.id));
-      router.push(`/edit-plan?${params.toString()}`);
-    } else {
-      router.push(`/new-plan?${params.toString()}`);
-    }
-  };
-
   const onSaveClicked = () => {
+    if (!managedSchedules || !onSave) return;
     setIsSaving(true);
-    onSave(plan)
+    onSave({ ...plan!, schedules: managedSchedules })
       .then(() => setShowSuccessfullySaved(true))
       .finally(() => setIsSaving(false));
   };
 
+  // ── Activity management helpers ──
+
+  const markDayEdited = () => {
+    editedDays.current = new Set(editedDays.current).add(currentDay);
+  };
+
+  const handleReorder = (sourceIndex: number, destinationIndex: number) => {
+    markDayEdited();
+    setManagedSchedules((prev) => {
+      if (!prev) return prev;
+      const schedules = prev.map((s) => ({ ...s, activities: [...s.activities] }));
+      const acts = schedules[currentDay].activities;
+      const [moved] = acts.splice(sourceIndex, 1);
+      acts.splice(destinationIndex, 0, moved);
+      return schedules;
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    markDayEdited();
+    setManagedSchedules((prev) => {
+      if (!prev) return prev;
+      const schedules = prev.map((s) => ({ ...s, activities: [...s.activities] }));
+      schedules[currentDay].activities.splice(index, 1);
+      return schedules;
+    });
+  };
+
+  const handleMoveToDay = (index: number, targetDayIndex: number) => {
+    markDayEdited();
+    editedDays.current = new Set(editedDays.current).add(targetDayIndex);
+    setManagedSchedules((prev) => {
+      if (!prev) return prev;
+      const schedules = prev.map((s) => ({ ...s, activities: [...s.activities] }));
+      const [activity] = schedules[currentDay].activities.splice(index, 1);
+      schedules[targetDayIndex].activities.push(activity);
+      return schedules;
+    });
+  };
+
+  const handleAddActivity = (activity: Activity) => {
+    markDayEdited();
+    setManagedSchedules((prev) => {
+      if (!prev) return prev;
+      const schedules = prev.map((s) => ({ ...s, activities: [...s.activities] }));
+      schedules[currentDay].activities.push(activity);
+      return schedules;
+    });
+    setAddActivityOpen(false);
+  };
+
+  // ── Category summary ──
   const categories =
     !isLoadingCategories && plan
       ? plan.categories.length === 0
@@ -126,9 +198,83 @@ export default ({
       ? visibleCategories.map((c) => c.title).join(' · ')
       : null;
 
+  const currentSchedule = managedSchedules?.[currentDay] ?? null;
+
+  // Activities available to add (not already in current day)
+  const currentActivityIds = new Set(currentSchedule?.activities.map((a) => a.id) ?? []);
+  const availableToAdd = (plan?.otherOptions ?? []).filter((a) => !currentActivityIds.has(a.id));
+
+  // ── Shared sub-components ──
+
+  const categorySubtitle = (
+    <Box sx={{ mt: 0.5 }}>
+      {isLoadingCategories ? (
+        <Skeleton width={220} height={22} />
+      ) : categorySummary ? (
+        <Typography variant="body2" color="text.secondary">
+          {categorySummary}
+          {hiddenCategories.length > 0 && (
+            <Tooltip title={hiddenCategories.map((c) => c.title).join(', ')} arrow>
+              <Typography
+                component="span"
+                variant="body2"
+                color="text.secondary"
+                sx={{ ml: 0.5, cursor: 'default', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+              >
+                +{hiddenCategories.length} more
+              </Typography>
+            </Tooltip>
+          )}
+        </Typography>
+      ) : null}
+    </Box>
+  );
+
+  // Parse a date string ("YYYY-MM-DD" or ISO) as local midnight to avoid UTC off-by-one
+  const parseLocalDate = (d: Date | string | null | undefined): Date | null => {
+    if (!d) return null;
+    const s = String(d).substring(0, 10); // take "YYYY-MM-DD" portion
+    const [year, month, day] = s.split('-').map(Number);
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+    return new Date(year, month - 1, day); // local midnight — no timezone shift
+  };
+
+  const dayTabs = (
+    <Tabs
+      value={currentDay}
+      onChange={handleTabChange}
+      scrollButtons="auto"
+      allowScrollButtonsMobile
+      variant="scrollable"
+    >
+      {plan
+        ? Array.from({ length: plan.days }, (_, i) => {
+            // Prefer plan.start → explicit startDate prop → per-schedule startAt
+            const baseDate = plan.startDate
+              ? addDays(parseLocalDate(plan.startDate)!, i)
+              : startDate
+              ? addDays(parseLocalDate(startDate)!, i)
+              : parseLocalDate(plan.schedules[i]?.startAt ?? null);
+            const label = baseDate ? (
+              <Box sx={{ textAlign: 'center', lineHeight: 1.2 }}>
+                <Typography variant="caption" display="block" color="inherit" sx={{ opacity: 0.7 }}>
+                  Day {i + 1}
+                </Typography>
+                <Typography variant="body2" fontWeight={600} color="inherit">
+                  {format(baseDate, 'MMM d')}
+                </Typography>
+              </Box>
+            ) : `Day ${i + 1}`;
+            return <Tab key={i} label={label} />;
+          })
+        : Array.from({ length: 3 }, (_, i) => <Skeleton width={75} height={60} key={i} sx={{ mr: 1 }} />)}
+    </Tabs>
+  );
+
+  // ── Render ──
   return (
     <Stack sx={{ width: '100%' }}>
-      {/* ── Mobile header (not sticky) ── */}
+      {/* ── Mobile header ── */}
       <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 1, mb: 1 }}>
         {plan ? (
           <Typography sx={{ typography: 'h4' }} color="secondary">
@@ -137,38 +283,10 @@ export default ({
         ) : (
           <TitleSkeleton />
         )}
-        <Box sx={{ mt: 0.5 }}>
-          {isLoadingCategories ? (
-            <Skeleton width={220} height={22} />
-          ) : categorySummary ? (
-            <Typography variant="body2" color="text.secondary">
-              {categorySummary}
-              {hiddenCategories.length > 0 && (
-                <Tooltip
-                  title={hiddenCategories.map((c) => c.title).join(', ')}
-                  arrow
-                >
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      ml: 0.5,
-                      cursor: 'default',
-                      textDecoration: 'underline',
-                      textDecorationStyle: 'dotted',
-                    }}
-                  >
-                    +{hiddenCategories.length} more
-                  </Typography>
-                </Tooltip>
-              )}
-            </Typography>
-          ) : null}
-        </Box>
+        {categorySubtitle}
       </Box>
 
-      {/* ── Desktop sticky header (title + buttons + tabs) ── */}
+      {/* ── Desktop sticky header ── */}
       <Paper
         elevation={0}
         sx={{
@@ -191,52 +309,56 @@ export default ({
             ) : (
               <TitleSkeleton />
             )}
-            <Box sx={{ mt: 0.5 }}>
-              {isLoadingCategories ? (
-                <Skeleton width={220} height={22} />
-              ) : categorySummary ? (
-                <Typography variant="body2" color="text.secondary">
-                  {categorySummary}
-                  {hiddenCategories.length > 0 && (
-                    <Tooltip
-                      title={hiddenCategories.map((c) => c.title).join(', ')}
-                      arrow
-                    >
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          ml: 0.5,
-                          cursor: 'default',
-                          textDecoration: 'underline',
-                          textDecorationStyle: 'dotted',
-                        }}
-                      >
-                        +{hiddenCategories.length} more
-                      </Typography>
-                    </Tooltip>
-                  )}
-                </Typography>
-              ) : null}
-            </Box>
+            {categorySubtitle}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, mt: 0.5 }}>
+
+          {/* Action buttons */}
+          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, mt: 0.5, alignItems: 'center' }}>
             {plan ? (
-              <>
-                <Button variant="outlined" color="secondary" size="large" onClick={handleEdit}>
-                  Edit
+              readOnly ? (
+                /* Read-only: single Edit trip button */
+                <Button variant="contained" size="large" startIcon={<Edit />} onClick={onEdit} sx={{ color: 'white' }}>
+                  Edit trip
                 </Button>
-                <LoadingButton
-                  variant="contained"
-                  size="large"
-                  sx={{ color: 'white' }}
-                  onClick={onSaveClicked}
-                  loading={isSaving}
-                >
-                  {saveButtonLabel}
-                </LoadingButton>
-              </>
+              ) : (
+                /* Editable: compact toggle + Back + [Settings] + Save */
+                <>
+                  <Tooltip title={compact ? 'Expanded view' : 'Compact view'}>
+                    <ToggleButtonGroup
+                      value={compact ? 'compact' : 'expanded'}
+                      exclusive
+                      onChange={(_, v) => { if (v !== null) setCompact(v === 'compact'); }}
+                      sx={{ height: 42 }}
+                    >
+                      <ToggleButton value="expanded" aria-label="expanded">
+                        <ViewAgenda fontSize="small" />
+                      </ToggleButton>
+                      <ToggleButton value="compact" aria-label="compact">
+                        <ViewList fontSize="small" />
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Tooltip>
+                  {onBack && (
+                    <Button variant="outlined" color="secondary" size="large" onClick={onBack}>
+                      {backLabel}
+                    </Button>
+                  )}
+                  {onSettings && (
+                    <Button variant="outlined" size="large" onClick={onSettings}>
+                      Settings
+                    </Button>
+                  )}
+                  <LoadingButton
+                    variant="contained"
+                    size="large"
+                    sx={{ color: 'white' }}
+                    onClick={onSaveClicked}
+                    loading={isSaving}
+                  >
+                    {saveButtonLabel}
+                  </LoadingButton>
+                </>
+              )
             ) : (
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Skeleton variant="rounded" width={80} height={42} sx={{ borderRadius: 1 }} />
@@ -246,73 +368,51 @@ export default ({
           </Box>
         </Box>
 
-        {/* Tabs */}
-        <Tabs
-          value={currentDay}
-          onChange={handleChange}
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          variant="scrollable"
-        >
-          {plan
-            ? Array.from({ length: plan?.days || 0 }, (_, i) => (
-                <Tab key={i} label={'Day ' + (i + 1)} />
-              ))
-            : Array.from({ length: 3 }, (_, i) => (
-                <Skeleton width={75} height={60} key={i} sx={{ mr: 1 }} />
-              ))}
-        </Tabs>
+        {dayTabs}
       </Paper>
 
-      {/* ── Mobile tabs (not sticky) ── */}
+      {/* ── Mobile tabs ── */}
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Tabs
-          value={currentDay}
-          onChange={handleChange}
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          variant="scrollable"
-        >
-          {plan
-            ? Array.from({ length: plan?.days || 0 }, (_, i) => (
-                <Tab key={i} label={'Day ' + (i + 1)} />
-              ))
-            : Array.from({ length: 3 }, (_, i) => (
-                <Skeleton width={75} height={60} key={i} sx={{ mr: 1 }} />
-              ))}
-        </Tabs>
+        {dayTabs}
       </Box>
 
       {/* ── Content grid ── */}
       <Grid container rowSpacing={3} columnSpacing={3} sx={{ mt: 0 }}>
-        <Grid
-          display={!isMobile || viewMode === 'list' ? 'flex' : 'none'}
-          md={6}
-          xs={12}
-        >
-          <Box
-            sx={{
-              maxWidth: '100%',
-              bgcolor: 'background.paper',
-              px: { xs: 0, md: 3 },
-              width: '100%',
-            }}
-          >
-            {orderedSchedule && plan ? (
-              <DailyPlanTimeline
-                city={plan.city}
-                schedule={orderedSchedule}
-                onHoverActivity={setSelectedActivity}
-              />
+        <Grid display={!isMobile || viewMode === 'list' ? 'flex' : 'none'} md={6} xs={12}>
+          <Box sx={{ maxWidth: '100%', bgcolor: 'background.paper', px: { xs: 0, md: 3 }, width: '100%' }}>
+            {currentSchedule && plan ? (
+              <>
+                {/* Desktop-only: Add activity button (editable mode only) */}
+                {!readOnly && (
+                  <Box sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center', pt: 2, pb: 1 }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Add />}
+                      onClick={() => setAddActivityOpen(true)}
+                      disabled={availableToAdd.length === 0}
+                    >
+                      {availableToAdd.length === 0 ? 'No more activities available' : 'Add activity'}
+                    </Button>
+                  </Box>
+                )}
+                <DailyPlanTimeline
+                  city={plan.city}
+                  schedule={currentSchedule}
+                  onHoverActivity={setSelectedActivity}
+                  currentDayIndex={currentDay}
+                  totalDays={plan.days}
+                  compact={compact}
+                  {...(!readOnly && {
+                    onReorder: handleReorder,
+                    onRemove: handleRemove,
+                    onMoveToDay: handleMoveToDay,
+                  })}
+                />
+              </>
             ) : (
-              <Stack spacing={3} mt={4} width={'100%'}>
+              <Stack spacing={3} mt={4} width="100%">
                 {Array.from({ length: 4 }, (_, i) => (
-                  <Skeleton
-                    variant="rounded"
-                    height={200}
-                    sx={{ width: '100%' }}
-                    key={i}
-                  />
+                  <Skeleton variant="rounded" height={200} sx={{ width: '100%' }} key={i} />
                 ))}
               </Stack>
             )}
@@ -321,25 +421,14 @@ export default ({
 
         {(!isMobile || viewMode === 'map') && (
           <Grid md={6} xs={12}>
-            <Box
-              sx={{
-                position: { md: 'sticky' },
-                top: { md: '228px' },
-              }}
-            >
+            <Box sx={{ position: { md: 'sticky' }, top: { md: '228px' } }}>
               <Container style={{ paddingLeft: 0, paddingRight: 0 }}>
-                <Box
-                  sx={{
-                    borderRadius: { xs: 0, md: 5 },
-                    mx: { xs: -2, md: 0 },
-                    overflow: 'hidden',
-                  }}
-                >
-                  {orderedSchedule && plan ? (
+                <Box sx={{ borderRadius: { xs: 0, md: 5 }, mx: { xs: -2, md: 0 }, overflow: 'hidden' }}>
+                  {currentSchedule && plan ? (
                     <RouteMap
                       routes={optimizedRoutes}
-                      activities={orderedSchedule.activities}
-                      city={plan?.city}
+                      activities={currentSchedule.activities}
+                      city={plan.city}
                       focusActivity={selectedActivity}
                     />
                   ) : (
@@ -388,24 +477,62 @@ export default ({
           </ToggleButton>
         </ToggleButtonGroup>
         <Box sx={{ flex: 1 }} />
-        <Button
-          variant="outlined"
-          color="secondary"
-          size="large"
-          onClick={handleEdit}
-        >
-          Edit
-        </Button>
-        <LoadingButton
-          variant="contained"
-          size="large"
-          sx={{ color: 'white' }}
-          onClick={onSaveClicked}
-          loading={isSaving}
-        >
-          {saveButtonLabel}
-        </LoadingButton>
+        {readOnly ? (
+          <Button variant="contained" size="large" startIcon={<Edit />} onClick={onEdit} sx={{ color: 'white' }}>
+            Edit trip
+          </Button>
+        ) : (
+          <>
+            {onBack && (
+              <Button variant="outlined" color="secondary" size="large" onClick={onBack}>
+                {backLabel}
+              </Button>
+            )}
+            {onSettings && (
+              <Button variant="outlined" size="large" onClick={onSettings}>
+                Settings
+              </Button>
+            )}
+            <LoadingButton
+              variant="contained"
+              size="large"
+              sx={{ color: 'white' }}
+              onClick={onSaveClicked}
+              loading={isSaving}
+            >
+              {saveButtonLabel}
+            </LoadingButton>
+          </>
+        )}
       </Paper>
+
+      {/* ── Add activity dialog (editable, desktop only) ── */}
+      {!readOnly && (
+        <Dialog open={addActivityOpen} onClose={() => setAddActivityOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Add activity — Day {currentDay + 1}</DialogTitle>
+          <DialogContent dividers sx={{ p: 0 }}>
+            <MuiList disablePadding>
+              {availableToAdd.map((activity, i) => (
+                <Box key={activity.id}>
+                  <ListItem
+                    secondaryAction={
+                      <Button size="small" variant="outlined" onClick={() => handleAddActivity(activity)}>
+                        Add
+                      </Button>
+                    }
+                  >
+                    <ListItemText primary={activity.title} secondary={`${activity.duration} min`} />
+                  </ListItem>
+                  {i < availableToAdd.length - 1 && <Divider />}
+                </Box>
+              ))}
+            </MuiList>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setAddActivityOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      )}
 
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
@@ -413,14 +540,10 @@ export default ({
         autoHideDuration={4000}
         onClose={() => setShowSuccessfullySaved(false)}
       >
-        <Alert
-          onClose={() => setShowSuccessfullySaved(false)}
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={() => setShowSuccessfullySaved(false)} variant="filled" sx={{ width: '100%' }}>
           Changes saved successfully.
         </Alert>
       </Snackbar>
     </Stack>
   );
-};
+}

@@ -19,6 +19,7 @@ export default () => {
     setPlan(null);
     const days = parseInt(params.get('days') || '3');
     const categories = params.getAll('categories');
+    const startDate = params.get('date') ?? undefined;
     createInitialPlan(cityName, days, categories).then((plan) => setPlan(plan));
   }, [params]);
 
@@ -27,25 +28,32 @@ export default () => {
       s.activities.map((a) => a.id)
     );
     return planCreator
-      .mutateAsync({ ...plan, cityName, schedules })
+      .mutateAsync({ ...plan, cityName, schedules, startDate: startDate ?? plan.startDate })
       .then((plan) => router.replace(`/plans/${plan.id}`));
   };
 
-  const onChangedPlan = ({ days, selectedCategories }: any) => {
-    const current = new URLSearchParams(Array.from(params.entries()));
-    current.set('days', days);
-    current.delete('categories');
-    for (const category of selectedCategories) {
-      current.append('categories', category);
-    }
-    router.push(`?${current.toString()}`);
+  const handleBack = () => {
+    // Return to wizard step 2 (Categories) with all current selections preserved
+    const backParams = new URLSearchParams();
+    backParams.set('city', cityName);
+    backParams.set('step', '2');
+    const days = params.get('days');
+    if (days) backParams.set('days', days);
+    for (const cat of params.getAll('categories')) backParams.append('categories', cat);
+    const date = params.get('date');
+    if (date) backParams.set('date', date);
+    router.push(`/new-plan?${backParams.toString()}`);
   };
+
+  const startDate = params.get('date') ?? undefined;
 
   return (
     <DisplayPlan
       plan={plan}
-      handleChangedPlan={onChangedPlan}
       onSave={onSave}
+      onBack={handleBack}
+      backLabel="Back"
+      startDate={startDate}
     />
   );
 };

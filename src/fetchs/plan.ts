@@ -29,11 +29,7 @@ export const getPlan = (planId: number): UseQueryResult<Plan> =>
     queryFn: () => authAxios.get(`/plans/${planId}`).then((res) => res.data),
   });
 
-export const createInitialPlan = (
-  cityName: string,
-  days: number,
-  categories: any[]
-) =>
+export const createInitialPlan = (cityName: string, days: number, categories: any[]) =>
   anonymousAxios
     .post<Plan>('/plans/initial', { cityName, days, categories })
     .then((res) => res.data);

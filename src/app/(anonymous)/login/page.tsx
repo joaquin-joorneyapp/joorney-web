@@ -72,7 +72,7 @@ function Login() {
     if (count?.data?.count) {
       router.push('/saved-plans');
     } else {
-      router.push('/cities/new-york/new-plan');
+      router.push('/new-plan');
     }
   };
 

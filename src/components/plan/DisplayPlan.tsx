@@ -82,7 +82,6 @@ export default function DisplayPlan({
   const [viewMode, setViewMode] = useState('list');
   const [showSuccessfullySaved, setShowSuccessfullySaved] = useState(false);
   const [compact, setCompact] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   // Managed schedules — local editable copy of plan.schedules
   const [managedSchedules, setManagedSchedules] = useState<DailySchedule[] | null>(null);
@@ -230,23 +229,12 @@ export default function DisplayPlan({
         <Typography variant="body2" color="text.secondary">
           {categorySummary}
           {hiddenCategories.length > 0 && (
-            <Tooltip
-              title={hiddenCategories.map((c) => c.title).join(', ')}
-              arrow
-              open={categoriesOpen}
-              onClose={() => setCategoriesOpen(false)}
-              disableHoverListener
-              disableFocusListener
-              disableTouchListener
-            >
+            <Tooltip title={hiddenCategories.map((c) => c.title).join(', ')} arrow>
               <Typography
                 component="span"
                 variant="body2"
                 color="text.secondary"
-                onClick={(e) => { e.stopPropagation(); setCategoriesOpen((o) => !o); }}
-                onMouseEnter={() => setCategoriesOpen(true)}
-                onMouseLeave={() => setCategoriesOpen(false)}
-                sx={{ ml: 0.5, cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
+                sx={{ ml: 0.5, cursor: 'default', textDecoration: 'underline', textDecorationStyle: 'dotted' }}
               >
                 +{hiddenCategories.length} more
               </Typography>
@@ -371,14 +359,9 @@ export default function DisplayPlan({
                     </Button>
                   )}
                   {onSettings && (
-                    <Tooltip title="Settings">
-                      <IconButton
-                        onClick={onSettings}
-                        sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, height: 42, width: 42 }}
-                      >
-                        <Settings fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    <Button variant="outlined" size="large" onClick={onSettings}>
+                      Settings
+                    </Button>
                   )}
                   <LoadingButton
                     variant="contained"

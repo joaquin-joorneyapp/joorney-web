@@ -8,12 +8,16 @@ import { getCategories } from '@/fetchs/category';
 import { getOptimizedRoute } from '@/fetchs/map';
 import { Activity } from '@/types/fetchs/responses/activity';
 import { DailySchedule, Plan } from '@/types/fetchs/responses/plan';
-import { Add, Edit, List, MapOutlined, Settings, ViewAgenda, ViewList } from '@mui/icons-material';
+import { Add, Edit, List, MapOutlined, Settings, ViewAgenda, ViewList, ViewModule, ViewStream } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Box,
   Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -36,6 +40,7 @@ import {
   useTheme,
   List as MuiList,
 } from '@mui/material';
+import { buildImageUrl } from '@/utils/image';
 import Grid from '@mui/material/Unstable_Grid2';
 import { addDays, format } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
@@ -82,6 +87,7 @@ export default function DisplayPlan({
 
   // Add activity dialog
   const [addActivityOpen, setAddActivityOpen] = useState(false);
+  const [modalCompact, setModalCompact] = useState(false);
 
   // Sync managed schedules when plan loads
   useEffect(() => {
@@ -510,27 +516,102 @@ export default function DisplayPlan({
         )}
       </Paper>
 
-      {/* ── Add activity dialog (editable, desktop only) ── */}
+      {/* ── Add activity dialog ── */}
       {!readOnly && (
-        <Dialog open={addActivityOpen} onClose={() => setAddActivityOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Add activity — Day {currentDay + 1}</DialogTitle>
-          <DialogContent dividers sx={{ p: 0 }}>
-            <MuiList disablePadding>
-              {availableToAdd.map((activity, i) => (
-                <Box key={activity.id}>
-                  <ListItem
-                    secondaryAction={
-                      <Button size="small" variant="outlined" onClick={() => handleAddActivity(activity)}>
-                        Add
-                      </Button>
-                    }
-                  >
-                    <ListItemText primary={activity.title} secondary={`${activity.duration} min`} />
-                  </ListItem>
-                  {i < availableToAdd.length - 1 && <Divider />}
-                </Box>
-              ))}
-            </MuiList>
+        <Dialog open={addActivityOpen} onClose={() => setAddActivityOpen(false)} maxWidth="md" fullWidth>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 2 }}>
+            <span>Add activity — Day {currentDay + 1}</span>
+            <ToggleButtonGroup
+              value={modalCompact ? 'compact' : 'expanded'}
+              exclusive
+              size="small"
+              onChange={(_, v) => { if (v) setModalCompact(v === 'compact'); }}
+            >
+              <ToggleButton value="compact"><Tooltip title="Compact"><ViewStream fontSize="small" /></Tooltip></ToggleButton>
+              <ToggleButton value="expanded"><Tooltip title="Expanded"><ViewModule fontSize="small" /></Tooltip></ToggleButton>
+            </ToggleButtonGroup>
+          </DialogTitle>
+          <DialogContent dividers sx={{ p: modalCompact ? 0 : 2 }}>
+            {availableToAdd.length === 0 ? (
+              <Typography color="text.secondary" sx={{ p: 2 }}>No more activities available for this city.</Typography>
+            ) : modalCompact ? (
+              /* ── Compact view ── */
+              <MuiList disablePadding>
+                {availableToAdd.map((activity, i) => (
+                  <Box key={activity.id}>
+                    <ListItem
+                      secondaryAction={
+                        <Button size="small" variant="outlined" onClick={() => handleAddActivity(activity)}>
+                          Add
+                        </Button>
+                      }
+                    >
+                      <ListItemText
+                        primary={activity.title}
+                        secondary={
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.3 }}>
+                            <Typography variant="caption" color="text.secondary">{activity.duration} min</Typography>
+                            {activity.categories?.slice(0, 2).map((c: any) => (
+                              <Chip key={c.id} label={c.name} size="small" sx={{ height: 16, fontSize: 10 }} />
+                            ))}
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                    {i < availableToAdd.length - 1 && <Divider />}
+                  </Box>
+                ))}
+              </MuiList>
+            ) : (
+              /* ── Expanded view ── */
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                {availableToAdd.map((activity) => {
+                  const imgUrl = activity.pictures?.[0]?.url ? buildImageUrl(activity.pictures[0].url) : null;
+                  return (
+                    <Card key={activity.id} variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
+                      {imgUrl && (
+                        <CardMedia
+                          component="img"
+                          image={imgUrl}
+                          alt={activity.title}
+                          sx={{ height: 140, objectFit: 'cover' }}
+                        />
+                      )}
+                      <CardContent sx={{ flex: 1, pb: 1 }}>
+                        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                          {activity.title}
+                        </Typography>
+                        {activity.categories?.length > 0 && (
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
+                            {activity.categories.slice(0, 3).map((c: any) => (
+                              <Chip key={c.id} label={c.name} size="small" color="primary" variant="outlined" />
+                            ))}
+                          </Box>
+                        )}
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                          {activity.duration} min
+                        </Typography>
+                        {activity.description && (
+                          <Typography variant="body2" color="text.secondary" sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}>
+                            {activity.description}
+                          </Typography>
+                        )}
+                      </CardContent>
+                      <Box sx={{ px: 2, pb: 2 }}>
+                        <Button fullWidth variant="outlined" size="small" onClick={() => handleAddActivity(activity)}>
+                          Add to Day {currentDay + 1}
+                        </Button>
+                      </Box>
+                    </Card>
+                  );
+                })}
+              </Box>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setAddActivityOpen(false)}>Close</Button>

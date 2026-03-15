@@ -6,6 +6,7 @@ import CategoryPicker from '@/components/plan-form/CategoryPicker';
 import { getCategories } from '@/fetchs/category';
 import { getCities } from '@/fetchs/city';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Button,
@@ -37,6 +38,7 @@ function NewPlanContent() {
   );
   const [attempted, setAttempted] = useState(false);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -75,6 +77,7 @@ function NewPlanContent() {
       setAttempted(true);
       return;
     }
+    setIsSubmitting(true);
     const params = new URLSearchParams();
     params.set('days', String(days));
     for (const id of selectedCategories) params.append('categories', String(id));
@@ -219,6 +222,7 @@ function NewPlanContent() {
               size="large"
               onClick={handleBack}
               startIcon={<ArrowBack />}
+              disabled={isSubmitting}
             >
               Back
             </Button>
@@ -235,16 +239,17 @@ function NewPlanContent() {
               Continue
             </Button>
           ) : (
-            <Button
+            <LoadingButton
               variant="contained"
               color="primary"
               size="large"
               onClick={handleSubmit}
-              endIcon={<ArrowForward />}
+              endIcon={!isSubmitting ? <ArrowForward /> : undefined}
+              loading={isSubmitting}
               sx={{ color: 'white' }}
             >
               Plan My Trip
-            </Button>
+            </LoadingButton>
           )}
         </Box>
       </Paper>

@@ -354,12 +354,12 @@ export default function DisplayPlan({
                     </ToggleButtonGroup>
                   </Tooltip>
                   {onBack && (
-                    <Button variant="outlined" color="secondary" size="large" onClick={onBack}>
+                    <Button variant="outlined" color="secondary" size="large" onClick={onBack} disabled={isSaving}>
                       {backLabel}
                     </Button>
                   )}
                   {onSettings && (
-                    <Button variant="outlined" size="large" onClick={onSettings}>
+                    <Button variant="outlined" size="large" onClick={onSettings} disabled={isSaving}>
                       Settings
                     </Button>
                   )}
@@ -533,13 +533,15 @@ export default function DisplayPlan({
           <>
             {onSettings && (
               <Tooltip title="Settings">
-                <IconButton onClick={onSettings} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, height: 40, width: 40 }}>
-                  <Settings fontSize="small" />
-                </IconButton>
+                <span>
+                  <IconButton onClick={onSettings} disabled={isSaving} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, height: 40, width: 40 }}>
+                    <Settings fontSize="small" />
+                  </IconButton>
+                </span>
               </Tooltip>
             )}
             {onBack && (
-              <Button variant="outlined" color="secondary" size="large" onClick={onBack}>
+              <Button variant="outlined" color="secondary" size="large" onClick={onBack} disabled={isSaving}>
                 {backLabel}
               </Button>
             )}

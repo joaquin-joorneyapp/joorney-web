@@ -1,6 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        // Prevent CDN from caching HTML pages for long periods.
+        // JS/CSS chunks under /_next/static/ are content-hashed and safe to cache indefinitely.
+        source: '/((?!_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

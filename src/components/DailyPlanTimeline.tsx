@@ -2,7 +2,7 @@ import { Activity } from '@/types/fetchs/responses/activity';
 import { City } from '@/types/fetchs/responses/city';
 import { DailySchedule } from '@/types/fetchs/responses/plan';
 import { buildImageUrl } from '@/utils/image';
-import { Delete, DragIndicator, Schedule, SwapHoriz } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, Delete, DragIndicator, MoreVert, Schedule, SwapHoriz } from '@mui/icons-material';
 import {
   DragDropContext,
   Draggable,
@@ -24,6 +24,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Divider,
   IconButton,
   ImageList,
   ImageListItem,
@@ -81,6 +82,61 @@ function MoveToDayMenu({
               Day {d + 1}
             </MenuItem>
           ))}
+      </Menu>
+    </>
+  );
+}
+
+function MobileActivityMenu({
+  activityIndex,
+  totalActivities,
+  currentDayIndex,
+  totalDays,
+  onReorder,
+  onRemove,
+  onMoveToDay,
+}: {
+  activityIndex: number;
+  totalActivities: number;
+  currentDayIndex: number;
+  totalDays: number;
+  onReorder?: (from: number, to: number) => void;
+  onRemove?: (index: number) => void;
+  onMoveToDay?: (index: number, targetDay: number) => void;
+}) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const close = () => setAnchorEl(null);
+  return (
+    <>
+      <IconButton size="small" onClick={(e) => { e.stopPropagation(); setAnchorEl(e.currentTarget); }}>
+        <MoreVert fontSize="small" />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={close}>
+        {onReorder && activityIndex > 0 && (
+          <MenuItem onClick={() => { onReorder(activityIndex, activityIndex - 1); close(); }}>
+            <ArrowUpward fontSize="small" sx={{ mr: 1 }} /> Move up
+          </MenuItem>
+        )}
+        {onReorder && activityIndex < totalActivities - 1 && (
+          <MenuItem onClick={() => { onReorder(activityIndex, activityIndex + 1); close(); }}>
+            <ArrowDownward fontSize="small" sx={{ mr: 1 }} /> Move down
+          </MenuItem>
+        )}
+        {totalDays > 1 && onMoveToDay &&
+          Array.from({ length: totalDays }, (_, i) => i)
+            .filter((d) => d !== currentDayIndex)
+            .map((d) => (
+              <MenuItem key={d} onClick={() => { onMoveToDay(activityIndex, d); close(); }}>
+                <SwapHoriz fontSize="small" sx={{ mr: 1 }} /> Move to Day {d + 1}
+              </MenuItem>
+            ))
+        }
+        {onRemove && <Divider />}
+        {onRemove && (
+          <MenuItem onClick={() => { onRemove(activityIndex); close(); }} sx={{ color: 'error.main' }}>
+            <Delete fontSize="small" sx={{ mr: 1 }} /> Remove
+          </MenuItem>
+        )}
       </Menu>
     </>
   );
@@ -157,12 +213,14 @@ export default function DailyPlanTimeline({
       onMouseLeave={() => onHoverActivity(null)}
     >
       <TimelineOppositeContent
-        sx={{ m: '0', mt: 1.5, display: { xs: 'none', md: 'flex' } }}
+        sx={{ m: '0', mt: 1.5, display: 'flex' }}
         align="right"
         variant="body2"
         color="text.secondary"
       >
-        {format(hours[i], 'h:mm a')}
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', md: '0.875rem' } }}>
+          {format(hours[i], 'h:mm a')}
+        </Typography>
       </TimelineOppositeContent>
       <TimelineSeparator>
         <TimelineDot color="primary" variant="outlined">
@@ -237,6 +295,33 @@ export default function DailyPlanTimeline({
               <IconButton size="small" title="Remove" color="error" onClick={() => onRemove?.(i)}>
                 <Delete fontSize="small" />
               </IconButton>
+            </Box>
+          )}
+
+          {/* Mobile edit actions */}
+          {isEditable && (
+            <Box
+              sx={{ display: { xs: 'flex', md: 'none' }, flexShrink: 0, alignItems: 'flex-start', pt: 0.5, gap: 0.5 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {dragHandleProps && (
+                <Box
+                  {...dragHandleProps}
+                  sx={{ display: 'flex', alignItems: 'center', color: 'text.disabled', cursor: 'grab', px: 0.5, pt: 0.5 }}
+                  title="Hold to drag"
+                >
+                  <DragIndicator fontSize="small" />
+                </Box>
+              )}
+              <MobileActivityMenu
+                activityIndex={i}
+                totalActivities={schedule.activities.length}
+                currentDayIndex={currentDayIndex}
+                totalDays={totalDays}
+                onReorder={onReorder}
+                onRemove={onRemove}
+                onMoveToDay={onMoveToDay}
+              />
             </Box>
           )}
         </Box>

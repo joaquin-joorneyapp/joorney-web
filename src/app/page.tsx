@@ -136,7 +136,7 @@ export default function HomePage() {
                   <Skeleton
                     key={city.name}
                     variant="rounded"
-                    sx={{ flexShrink: 0, width: { xs: 160, md: 220 }, height: { xs: 220, md: 300 }, borderRadius: 3 }}
+                    sx={{ flexShrink: 0, width: 450, height: { xs: 220, md: 300 }, borderRadius: 3 }}
                   />
                 ))}
               </Box>
@@ -314,21 +314,12 @@ export default function HomePage() {
             <Grid item xs={12} md={6}>
               <Paper
                 elevation={6}
-                sx={{
-                  overflow: 'hidden',
-                  borderRadius: 4,
-                  bgcolor: 'primary.light',
-                  height: 360,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                sx={{ overflow: 'hidden', borderRadius: 4 }}
               >
-                <Box
-                  component="img"
-                  src="/logo.svg"
-                  alt="Joorney"
-                  sx={{ width: 120, opacity: 0.6 }}
+                <img
+                  src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800"
+                  alt="Travel Experience"
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
               </Paper>
             </Grid>

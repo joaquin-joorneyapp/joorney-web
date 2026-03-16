@@ -13,7 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
-  Stack,
+  Skeleton,
   Typography,
 } from '@mui/material';
 import AutoScroll from 'embla-carousel-auto-scroll';
@@ -50,7 +50,7 @@ const CAROUSEL_CITIES = [
 export default function HomePage() {
   const router = useRouter();
   const { user } = useContext(AuthUserContext);
-  const { data: apiCities } = getCities();
+  const { data: apiCities, isLoading: isLoadingCities } = getCities();
 
   // Build a slug → apiCity lookup so we can pull GCS pictures when available
   const cityBySlug = useMemo(() => {
@@ -130,62 +130,74 @@ export default function HomePage() {
             </Button>
 
             {/* City Images Carousel */}
-            <Box
-              ref={emblaRef}
-              className="embla"
-              sx={{ overflow: 'hidden' }}
-            >
-              <Box className="embla__container" sx={{ display: 'flex' }}>
-                {CAROUSEL_CITIES.flatMap((city) => {
-                  const apiCity = cityBySlug[city.name];
-                  const image = getCityImage(apiCity);
-                  if (!image) return [];
-                  return [(
-                    <Box
-                      key={city.name}
-                      className="embla__slide"
-                      sx={{ position: 'relative', flexShrink: 0, pl: 2 }}
-                    >
-                      <Card
-                        onClick={() => router.push(`/new-plan?city=${city.name}&step=1`)}
-                        sx={{
-                          height: { xs: 220, md: 300 },
-                          position: 'relative',
-                          cursor: 'pointer',
-                          '&:hover .overlay': { opacity: 1 },
-                          '&:hover img': { transform: 'scale(1.1)' },
-                        }}
+            {isLoadingCities ? (
+              <Box sx={{ display: 'flex', gap: 2, overflow: 'hidden', px: 1 }}>
+                {CAROUSEL_CITIES.map((city) => (
+                  <Skeleton
+                    key={city.name}
+                    variant="rounded"
+                    sx={{ flexShrink: 0, width: { xs: 160, md: 220 }, height: { xs: 220, md: 300 }, borderRadius: 3 }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <Box
+                ref={emblaRef}
+                className="embla"
+                sx={{ overflow: 'hidden' }}
+              >
+                <Box className="embla__container" sx={{ display: 'flex' }}>
+                  {CAROUSEL_CITIES.flatMap((city) => {
+                    const apiCity = cityBySlug[city.name];
+                    const image = getCityImage(apiCity);
+                    if (!image) return [];
+                    return [(
+                      <Box
+                        key={city.name}
+                        className="embla__slide"
+                        sx={{ position: 'relative', flexShrink: 0, pl: 2 }}
                       >
-                        <CardMedia
-                          component="img"
-                          image={image}
-                          alt={city.title}
-                          sx={{ height: { xs: 220, md: 300 }, transition: 'transform 0.7s' }}
-                        />
-                        <Box
-                          className="overlay"
+                        <Card
+                          onClick={() => router.push(`/new-plan?city=${city.name}&step=1`)}
                           sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                            p: 3,
-                            opacity: 0,
-                            transition: 'opacity 0.3s',
+                            height: { xs: 220, md: 300 },
+                            position: 'relative',
+                            cursor: 'pointer',
+                            '&:hover .overlay': { opacity: 1 },
+                            '&:hover img': { transform: 'scale(1.1)' },
                           }}
                         >
-                          <Typography variant="h6" color="white">{city.title}</Typography>
-                          <Typography variant="body2" color="white" sx={{ opacity: 0.8 }}>
-                            Discover the magic of {city.title}
-                          </Typography>
-                        </Box>
-                      </Card>
-                    </Box>
-                  )];
-                })}
+                          <CardMedia
+                            component="img"
+                            image={image}
+                            alt={city.title}
+                            sx={{ height: { xs: 220, md: 300 }, transition: 'transform 0.7s' }}
+                          />
+                          <Box
+                            className="overlay"
+                            sx={{
+                              position: 'absolute',
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                              p: 3,
+                              opacity: 0,
+                              transition: 'opacity 0.3s',
+                            }}
+                          >
+                            <Typography variant="h6" color="white">{city.title}</Typography>
+                            <Typography variant="body2" color="white" sx={{ opacity: 0.8 }}>
+                              Discover the magic of {city.title}
+                            </Typography>
+                          </Box>
+                        </Card>
+                      </Box>
+                    )];
+                  })}
+                </Box>
               </Box>
-            </Box>
+            )}
           </Box>
         </Container>
 

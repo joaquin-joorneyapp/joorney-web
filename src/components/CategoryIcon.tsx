@@ -63,7 +63,8 @@ export default function CategoryIcon({
   ...props
 }: {
   category: string;
-  color?: string
+  color?: string;
+  sx?: object;
 }) {
   const CategoryIcon = ICONS[category] || DEFAULT_ICON;
   return <CategoryIcon {...props}></CategoryIcon>;

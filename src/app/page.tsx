@@ -27,12 +27,37 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { AuthUserContext } from '@/contexts/AuthUserContext';
+import { getCities } from '@/fetchs/city';
+import { City } from '@/types/fetchs/responses/city';
+import { getCityImage } from '@/components/plan-form/CityPicker';
+
+// Defines which cities appear in the carousel and in what order.
+const CAROUSEL_CITIES = [
+  { name: 'paris',       title: 'Paris'       },
+  { name: 'tokyo',       title: 'Tokyo'       },
+  { name: 'rome',        title: 'Rome'        },
+  { name: 'new-york',    title: 'New York'    },
+  { name: 'barcelona',   title: 'Barcelona'   },
+  { name: 'london',      title: 'London'      },
+  { name: 'dubai',       title: 'Dubai'       },
+  { name: 'singapore',   title: 'Singapore'   },
+  { name: 'sydney',      title: 'Sydney'      },
+  { name: 'amsterdam',   title: 'Amsterdam'   },
+];
 
 export default function HomePage() {
   const router = useRouter();
   const { user } = useContext(AuthUserContext);
+  const { data: apiCities } = getCities();
+
+  // Build a slug → apiCity lookup so we can pull GCS pictures when available
+  const cityBySlug = useMemo(() => {
+    const map: Record<string, City> = {};
+    apiCities?.forEach((c) => { map[c.name] = c; });
+    return map;
+  }, [apiCities]);
 
   useEffect(() => {
     if (user) {
@@ -44,19 +69,6 @@ export default function HomePage() {
     { loop: true, dragFree: true, containScroll: 'trimSnaps' },
     [AutoScroll({ playOnInit: true })]
   );
-
-  const cities = [
-    { name: 'Paris', slug: 'paris', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80' },
-    { name: 'Tokyo', slug: 'tokyo', image: 'https://i.pinimg.com/736x/12/ef/8a/12ef8ad05ccdf05b1571e8f3dd138ffa.jpg' },
-    { name: 'Rome', slug: 'rome', image: 'https://i.pinimg.com/1200x/37/3d/dc/373ddca9c9fc9f26dba60fb784c17a2d.jpg' },
-    { name: 'New York', slug: 'new-york', image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80' },
-    { name: 'Barcelona', slug: 'barcelona', image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?auto=format&fit=crop&w=800&q=80' },
-    { name: 'London', slug: 'london', image: 'https://i.pinimg.com/1200x/6c/33/2b/6c332bfe7e4cacc4e34dd1635c8cb79c.jpg' },
-    { name: 'Dubai', slug: 'dubai', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80' },
-    { name: 'Singapore', slug: 'singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80' },
-    { name: 'Sydney', slug: 'sydney', image: 'https://i.pinimg.com/736x/f6/76/ff/f676ff7ec7f01ced5b469b95a1f02e89.jpg' },
-    { name: 'Amsterdam', slug: 'amsterdam', image: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80' },
-  ];
 
   return (
     <Box sx={{ minHeight: '100vh' }}>
@@ -124,67 +136,54 @@ export default function HomePage() {
               sx={{ overflow: 'hidden' }}
             >
               <Box className="embla__container" sx={{ display: 'flex' }}>
-                {cities.map((city, index) => (
-                  <Box
-                    key={index}
-                    className="embla__slide"
-                    sx={{
-                      position: 'relative',
-                      flexShrink: 0,
-                      pl: 2,
-                    }}
-                  >
-                    <Card
-                      onClick={() => router.push(`/new-plan?city=${city.slug}&step=1`)}
-                      sx={{
-                        height: {xs: 220, md: 300},
-                        position: 'relative',
-                        cursor: 'pointer',
-                        '&:hover .overlay': {
-                          opacity: 1,
-                        },
-                        '&:hover img': {
-                          transform: 'scale(1.1)',
-                        },
-                      }}
+                {CAROUSEL_CITIES.flatMap((city) => {
+                  const apiCity = cityBySlug[city.name];
+                  const image = getCityImage(apiCity);
+                  if (!image) return [];
+                  return [(
+                    <Box
+                      key={city.name}
+                      className="embla__slide"
+                      sx={{ position: 'relative', flexShrink: 0, pl: 2 }}
                     >
-                      <CardMedia
-                        component="img"
-                        image={city.image}
-                        alt={city.name}
+                      <Card
+                        onClick={() => router.push(`/new-plan?city=${city.name}&step=1`)}
                         sx={{
-                          height: { xs: 220, md: 300 }, 
-                          transition: 'transform 0.7s',
-                        }}
-                      />
-                      <Box
-                        className="overlay"
-                        sx={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          background:
-                            'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                          p: 3,
-                          opacity: 0,
-                          transition: 'opacity 0.3s',
+                          height: { xs: 220, md: 300 },
+                          position: 'relative',
+                          cursor: 'pointer',
+                          '&:hover .overlay': { opacity: 1 },
+                          '&:hover img': { transform: 'scale(1.1)' },
                         }}
                       >
-                        <Typography variant="h6" color="white">
-                          {city.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="white"
-                          sx={{ opacity: 0.8 }}
+                        <CardMedia
+                          component="img"
+                          image={image}
+                          alt={city.title}
+                          sx={{ height: { xs: 220, md: 300 }, transition: 'transform 0.7s' }}
+                        />
+                        <Box
+                          className="overlay"
+                          sx={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                            p: 3,
+                            opacity: 0,
+                            transition: 'opacity 0.3s',
+                          }}
                         >
-                          Discover the magic of {city.name}
-                        </Typography>
-                      </Box>
-                    </Card>
-                  </Box>
-                ))}
+                          <Typography variant="h6" color="white">{city.title}</Typography>
+                          <Typography variant="body2" color="white" sx={{ opacity: 0.8 }}>
+                            Discover the magic of {city.title}
+                          </Typography>
+                        </Box>
+                      </Card>
+                    </Box>
+                  )];
+                })}
               </Box>
             </Box>
           </Box>
@@ -306,12 +305,18 @@ export default function HomePage() {
                 sx={{
                   overflow: 'hidden',
                   borderRadius: 4,
+                  bgcolor: 'primary.light',
+                  height: 360,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <img
-                  src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800"
-                  alt="Travel Experience"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                <Box
+                  component="img"
+                  src="/logo.svg"
+                  alt="Joorney"
+                  sx={{ width: 120, opacity: 0.6 }}
                 />
               </Paper>
             </Grid>
@@ -344,108 +349,3 @@ export default function HomePage() {
   );
 }
 
-/*
-
-<Stack>
-      <Grid container>
-        <Grid md={6} sm={12}>
-          <Box
-            sx={{ display: 'flex' }}
-            style={{ width: '100%' }}
-            px={{ xs: 1, md: 10 }}
-            height={{ md: '100vh', xs: '80vh' }}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Box
-              component="img"
-              src="/logo.svg"
-              alt="logo"
-              width="100"
-              style={{ marginTop: '1rem' }}
-              height={{ md: 70, xs: 50 }}
-            />
-            <Typography
-              variant="body2"
-              fontSize={{ xs: 20, md: 25 }}
-              mt={4.5}
-              align="center"
-            >
-              Choose a city, select the number of days, pick your preferred
-              activities and let us build the perfect trip for you.
-            </Typography>
-            <Button
-              sx={{ color: 'white', fontSize: {md: 'x-large', xs: 'large'}, mt: {md: 3.5, xs: 6}, width: 200 }}
-              variant="contained"
-              color="primary"
-              onClick={() => router.push('/new-plan')}
-            >
-              Start
-            </Button>
-          </Box>
-        </Grid>
-        <Grid md={6} sm={12}>
-          <Box
-            component="img"
-            src={'/pictures/main/ss.png'}
-            sx={{
-              display: 'flex',
-            }}
-            height={{ md: '100vh', xs: undefined }}
-            width={{ md: '100%', xs: '90%' }}
-            marginLeft={{ xs: '5%' }}
-            marginBottom={{ xs: '5%' }}
-          />
-        </Grid>
-      </Grid>
-    </Stack>
-
-const itemData = [
-  {
-    img: 'https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Empire State',
-  },
-
-  {
-    img: 'https://plus.unsplash.com/premium_photo-1673483585905-439b19e0d30a?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-
-    title: 'SF',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1608753527764-81065db0f78b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Gaudi',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1492666673288-3c4b4576ad9a?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Sink',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1600042863738-970c0d567f6b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Vessel',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1522083165195-3424ed129620?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Brooklyn',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1549737328-8b9f3252b927?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Forest',
-  },
-
-  {
-    img: 'https://images.unsplash.com/photo-1598162461164-5cb059c382c6?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Bariloche',
-  },
-  {
-    img: 'https://plus.unsplash.com/premium_photo-1673266630625-92c62a6dfde7?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    title: 'Golden State',
-  },
-  {
-    img: 'https://i.pinimg.com/564x/ae/61/7e/ae617ec033ccf4ac2837d3167d869adf.jpg',
-    title: '7 colours',
-  },
-];
-
-*/

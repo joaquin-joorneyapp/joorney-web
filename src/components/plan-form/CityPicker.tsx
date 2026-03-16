@@ -18,51 +18,17 @@ import {
 import { useMemo, useState } from 'react';
 import SectionHeader from './SectionHeader';
 
-const CITY_FALLBACK_IMAGES: Record<string, string> = {
-  'new-york':
-    'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80',
-  paris:
-    'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-  tokyo:
-    'https://i.pinimg.com/736x/12/ef/8a/12ef8ad05ccdf05b1571e8f3dd138ffa.jpg',
-  rome: 'https://i.pinimg.com/1200x/37/3d/dc/373ddca9c9fc9f26dba60fb784c17a2d.jpg',
-  barcelona:
-    'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?auto=format&fit=crop&w=800&q=80',
-  london:
-    'https://i.pinimg.com/1200x/6c/33/2b/6c332bfe7e4cacc4e34dd1635c8cb79c.jpg',
-  dubai:
-    'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-  singapore:
-    'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80',
-  sydney:
-    'https://i.pinimg.com/736x/f6/76/ff/f676ff7ec7f01ced5b469b95a1f02e89.jpg',
-  amsterdam:
-    'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=800&q=80',
-  'buenos-aires':
-    'https://images.unsplash.com/photo-1612294037637-ec328d0e075e?auto=format&fit=crop&w=800&q=80',
-  istanbul:
-    'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80',
-  bangkok:
-    'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?auto=format&fit=crop&w=800&q=80',
-};
-
-const DEFAULT_FALLBACK =
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80';
-
-export function getCityImage(city: {
+export function getCityImage(city?: {
   name: string;
   title: string;
   pictures?: string[] | { url: string }[];
 }): string {
-  if (city.pictures && city.pictures.length > 0) {
+  if (city?.pictures && city.pictures.length > 0) {
     const pic = city.pictures[0];
     const url = typeof pic === 'string' ? pic : pic.url;
     return url.startsWith('https://') ? url : buildImageUrl(url);
   }
-  const byName = CITY_FALLBACK_IMAGES[city.name];
-  if (byName) return byName;
-  const titleSlug = city.title.toLowerCase().replace(/\s+/g, '-');
-  return CITY_FALLBACK_IMAGES[titleSlug] || DEFAULT_FALLBACK;
+  return '';
 }
 
 export default function CityPicker({
@@ -151,6 +117,7 @@ export default function CityPicker({
         <Grid container spacing={2}>
           {filteredCities.map((city) => {
             const isSelected = selectedCity === city.name;
+            const image = getCityImage(city);
             return (
               <Grid item xs={6} sm={4} md={3} key={city.id}>
                 <Card
@@ -170,16 +137,20 @@ export default function CityPicker({
                     '&:hover img': { transform: 'scale(1.1)' },
                   }}
                 >
-                  <CardMedia
-                    component="img"
-                    image={getCityImage(city)}
-                    alt={city.title}
-                    sx={{
-                      height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.5s ease',
-                    }}
-                  />
+                  {image ? (
+                    <CardMedia
+                      component="img"
+                      image={image}
+                      alt={city.title}
+                      sx={{
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.5s ease',
+                      }}
+                    />
+                  ) : (
+                    <Box sx={{ height: '100%', bgcolor: 'grey.200' }} />
+                  )}
                   <Box
                     sx={{
                       position: 'absolute',

@@ -10,7 +10,8 @@
     "post-update": "echo \"codesandbox preview only, need an update\" && pnpm update --latest",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@emotion/cache": "latest",
@@ -40,6 +41,7 @@
     "react-map-gl": "^7.1.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.10",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

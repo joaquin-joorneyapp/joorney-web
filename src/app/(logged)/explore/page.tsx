@@ -185,7 +185,7 @@ export default function ExplorePage() {
         </Box>
 
         {/* Right: Mapbox map */}
-        <Box sx={{ display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' }, width: { xs: '100%', md: '45%' }, position: 'sticky', top: 0, height: 'calc(100vh - 90px)', flexShrink: 0 }}>
+        <Box sx={{ display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' }, width: { xs: '100%', md: '45%' }, height: { xs: '100%', md: 'calc(100vh - 90px)' }, flexShrink: 0 }}>
           {effectiveLat && effectiveLng && (
             <Map
               mapboxAccessToken={MAPBOX_API_TOKEN}

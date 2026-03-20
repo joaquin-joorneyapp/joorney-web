@@ -22,6 +22,19 @@ const getAuthInstance = (baseUrl: string) => {
 
     return config;
   });
+
+  axiosAuthInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('token');
+        window.location.replace('/login');
+        return new Promise(() => {});
+      }
+      return Promise.reject(error);
+    }
+  );
+
   return axiosAuthInstance;
 };
 

@@ -42,6 +42,60 @@ export default function HomeTripCard({ plan, showProgress = false }: Props) {
   const progress =
     showProgress && startDate ? getProgressValue(startDate, plan.days) : 0;
 
+  if (showProgress) {
+    return (
+      <Card
+        sx={{ width: { xs: '100%', md: '50%' }, cursor: 'pointer', position: 'relative', overflow: 'hidden', borderRadius: 3 }}
+        onClick={() => plan.id && router.push(`/plans/${plan.id}`)}
+      >
+        <Box sx={{ position: 'relative', height: { xs: 220, md: 320 } }}>
+          {pictureUrl ? (
+            <Image
+              alt={plan.city.title}
+              src={pictureUrl}
+              fill
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <Box sx={{ width: '100%', height: '100%', bgcolor: 'grey.300' }} />
+          )}
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+            }}
+          />
+          <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, p: 3 }}>
+            <Typography variant="h3" sx={{ color: 'white', fontWeight: 700, lineHeight: 1.1 }}>
+              {plan.city.title}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <PlaceIcon sx={{ fontSize: 16 }} />
+                {plan.city.country}
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <CalendarMonthIcon sx={{ fontSize: 16 }} />
+                {dateLabel}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+        <LinearProgress
+          variant="determinate"
+          value={progress}
+          sx={{ height: 6, '& .MuiLinearProgress-bar': { backgroundColor: 'primary.main' } }}
+        />
+        <CardContent sx={{ py: 1.5 }}>
+          <Typography variant="body2" color="text.secondary">
+            {Math.round(progress)}% through your trip
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card
       sx={{ minWidth: 200, maxWidth: 220, flexShrink: 0, cursor: 'pointer' }}
@@ -58,7 +112,7 @@ export default function HomeTripCard({ plan, showProgress = false }: Props) {
       ) : (
         <Box sx={{ width: '100%', height: '140px', bgcolor: 'grey.200' }} />
       )}
-      <CardContent sx={{ pb: showProgress ? '0 !important' : undefined }}>
+      <CardContent>
         <Typography variant="h5" component="div" sx={{ fontSize: '1.1rem' }}>
           {plan.city.title}
         </Typography>
@@ -71,13 +125,6 @@ export default function HomeTripCard({ plan, showProgress = false }: Props) {
           {dateLabel}
         </Typography>
       </CardContent>
-      {showProgress && (
-        <LinearProgress
-          variant="determinate"
-          value={progress}
-          sx={{ height: 4, '& .MuiLinearProgress-bar': { backgroundColor: 'primary.main' } }}
-        />
-      )}
     </Card>
   );
 }

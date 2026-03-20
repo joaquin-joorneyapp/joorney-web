@@ -40,12 +40,12 @@ export default function NearbyCityCard({ city }: Props) {
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
               <PlaceIcon sx={{ fontSize: 14 }} />
-              {city.country} • {city.distance_km.toFixed(0)} km away
+              {city.country}{city.distance != null ? ` • ${city.distance.toFixed(0)} km away` : ''}
             </Typography>
           </Box>
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
-          Discover this amazing destination just {city.distance_km.toFixed(0)} km away from your location.
+          Discover this amazing destination{city.distance != null ? ` just ${city.distance.toFixed(0)} km away from your location` : ''}.
         </Typography>
         <Button
           variant="contained"

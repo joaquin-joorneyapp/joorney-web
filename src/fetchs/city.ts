@@ -16,7 +16,7 @@ export const getCity = (cityId: number): UseQueryResult<City> =>
   });
 
 export interface CityWithDistance extends City {
-  distance_km: number;
+  distance: number;
 }
 
 export const getClosestCity = (lat: number | null, lng: number | null): UseQueryResult<CityWithDistance[]> =>

@@ -3,7 +3,6 @@
 import Copyright from '@/components/Copyright';
 import { AuthUserContext } from '@/contexts/AuthUserContext';
 import { login, registerWithGoogle, verifyEmail } from '@/fetchs/auth';
-import { countPlans } from '@/fetchs/plan';
 import { parseHTTPErrors } from '@/utils/http';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { LoadingButton } from '@mui/lab';
@@ -38,7 +37,6 @@ function Login() {
   const [isEmailValidated, setEmailValidated] = useState(true);
   const [isValidating, setValidating] = useState(true);
   const [locationHash, setLocationHash] = useState('');
-  const { refetch } = countPlans();
   const router = useRouter();
   const params = useSearchParams();
 
@@ -73,12 +71,7 @@ function Login() {
       router.push(hash.split(/=(.*)/s)[1]);
       return;
     }
-    const count = await refetch();
-    if (count?.data?.count) {
-      router.push('/saved-plans');
-    } else {
-      router.push('/new-plan');
-    }
+    router.push('/home');
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

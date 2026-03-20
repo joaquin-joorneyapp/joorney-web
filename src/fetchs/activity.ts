@@ -33,7 +33,7 @@ export const createActivity = (activity: ActivityEditForm) =>
   });
 
 export interface ActivityWithDistance extends Activity {
-  distance_km: number;
+  distance: number;
 }
 
 export const getClosestActivities = (

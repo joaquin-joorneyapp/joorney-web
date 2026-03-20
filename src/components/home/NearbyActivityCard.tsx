@@ -52,7 +52,7 @@ export default function NearbyActivityCard({ activity }: Props) {
           sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}
         >
           <PlaceIcon sx={{ fontSize: 14 }} />
-          {activity.distance_km.toFixed(1)} km
+          {activity.distance?.toFixed(1)} km
         </Typography>
       </CardContent>
     </Card>

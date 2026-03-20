@@ -61,7 +61,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (user) {
-      router.replace('/saved-plans');
+      router.replace('/home');
     }
   }, [user]);
 

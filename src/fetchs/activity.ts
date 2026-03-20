@@ -31,3 +31,21 @@ export const createActivity = (activity: ActivityEditForm) =>
   authAxios.post(`/cities/${activity.cityId}/activities`, {
     ...activity,
   });
+
+export interface ActivityWithDistance extends Activity {
+  distance_km: number;
+}
+
+export const getClosestActivities = (
+  lat: number | null,
+  lng: number | null,
+  limit = 10
+): UseQueryResult<ActivityWithDistance[]> =>
+  useQuery({
+    queryKey: ['activities/closest', lat, lng],
+    queryFn: () =>
+      anonymousAxios
+        .get('/activities/closest', { params: { latitude: lat, longitude: lng, limit } })
+        .then((res) => res.data),
+    enabled: !!lat && !!lng,
+  });

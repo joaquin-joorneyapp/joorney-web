@@ -14,3 +14,17 @@ export const getCity = (cityId: number): UseQueryResult<City> =>
     queryFn: () =>
       anonymousAxios.get(`/cities/${cityId}`).then((res) => res.data),
   });
+
+export interface CityWithDistance extends City {
+  distance_km: number;
+}
+
+export const getClosestCity = (lat: number | null, lng: number | null): UseQueryResult<CityWithDistance[]> =>
+  useQuery({
+    queryKey: ['cities/closest', lat, lng],
+    queryFn: () =>
+      anonymousAxios
+        .get('/cities/closest', { params: { latitude: lat, longitude: lng, limit: 1 } })
+        .then((res) => res.data),
+    enabled: !!lat && !!lng,
+  });

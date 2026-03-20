@@ -51,6 +51,7 @@
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/ui": "^2.1.9",
+    "axios-mock-adapter": "^2.1.0",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "jsdom": "^24.1.3",

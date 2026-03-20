@@ -9,21 +9,18 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Props {
   activity: ActivityWithDistance;
 }
 
 export default function ActivityCard({ activity }: Props) {
-  const router = useRouter();
   const pictureUrl = activity.pictures[0]?.url
     ? buildImageUrl(activity.pictures[0].url)
     : null;
 
-  const handleClick = () => {
-    router.push(`/cities/${activity.city.name}/activities/${activity.name}`);
-  };
+  const href = `/cities/${activity.city.name}/activities/${activity.name}`;
 
   const durationText =
     activity.duration < 60
@@ -39,7 +36,8 @@ export default function ActivityCard({ activity }: Props) {
         overflow: 'hidden',
       }}
     >
-      <CardActionArea onClick={handleClick}>
+      <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <CardActionArea>
         {pictureUrl ? (
           <Image
             alt={activity.title}
@@ -87,7 +85,8 @@ export default function ActivityCard({ activity }: Props) {
             </Box>
           </Box>
         </CardContent>
-      </CardActionArea>
+        </CardActionArea>
+      </Link>
     </Card>
   );
 }

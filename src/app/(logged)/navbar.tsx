@@ -18,22 +18,19 @@ import * as React from 'react';
 import { useContext, useState } from 'react';
 
 const pages = [
-  { name: 'Home', href: '/' },
+  { name: 'Home', href: '/home' },
+  { name: 'New Trip', href: '/new-plan' },
+  { name: 'Explore', href: '/explore' },
+  { name: 'Saved Plans', href: '/saved-plans', onlyLoggedUsers: true },
   {
     name: 'Data Management',
     href: '/cities',
     onlyAdminUsers: true,
   },
-  { name: 'Explore', href: '/explore' },
-  { name: 'New Plan', href: '/new-plan' },
-  { name: 'Saved Plans', href: '/saved-plans', onlyLoggedUsers: true },
   { name: 'Log in', href: '/login', onlyAnonymUsers: true },
   { name: 'Sign up', href: '/signup', onlyAnonymUsers: true },
 ];
 const settings = [
-  { name: 'Profile', handle: () => {} },
-  { name: 'Account', handle: () => {} },
-  { name: 'Dashboard', handle: () => {} },
   {
     name: 'Logout',
     handle: () => {
@@ -88,7 +85,7 @@ export default function Navbar() {
           id="toolbar"
         >
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} />
+            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -132,7 +129,7 @@ export default function Navbar() {
           </Box>
 
           <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
-            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} />
+            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>

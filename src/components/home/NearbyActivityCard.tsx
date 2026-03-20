@@ -2,9 +2,11 @@ import { buildImageUrl } from '@/utils/image';
 import PlaceIcon from '@mui/icons-material/Place';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { ActivityWithDistance } from '@/fetchs/activity';
 
@@ -18,8 +20,12 @@ export default function NearbyActivityCard({ activity }: Props) {
     ? buildImageUrl(typeof pic === 'string' ? pic : (pic as { url: string }).url)
     : null;
 
+  const href = `/cities/${activity.city.name}/activities/${activity.name}`;
+
   return (
     <Card sx={{ minWidth: 160, maxWidth: 180, flexShrink: 0 }}>
+      <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <CardActionArea>
       {pictureUrl ? (
         <Image
           alt={activity.title}
@@ -58,6 +64,8 @@ export default function NearbyActivityCard({ activity }: Props) {
           {activity.distance?.toFixed(1)} km
         </Typography>
       </CardContent>
+      </CardActionArea>
+      </Link>
     </Card>
   );
 }

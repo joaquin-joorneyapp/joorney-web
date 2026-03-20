@@ -171,6 +171,7 @@ export default function ExplorePage() {
           {effectiveLat && effectiveLng && (
             <Map
               mapboxAccessToken={MAPBOX_API_TOKEN}
+              mapLib={import('mapbox-gl')}
               initialViewState={{
                 latitude: effectiveLat,
                 longitude: effectiveLng,

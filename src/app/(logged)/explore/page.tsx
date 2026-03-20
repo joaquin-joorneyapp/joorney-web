@@ -4,6 +4,8 @@ import ActivityCard from '@/components/explore/ActivityCard';
 import { getClosestActivities } from '@/fetchs/activity';
 import { getCategories } from '@/fetchs/category';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { Map, Marker } from 'react-map-gl';
+import { MAPBOX_API_TOKEN } from '@/configs/mapbox';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -164,21 +166,48 @@ export default function ExplorePage() {
           )}
         </Box>
 
-        {/* Right: map placeholder */}
-        <Box
-          sx={{
-            width: '45%',
-            bgcolor: 'grey.100',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'sticky',
-            top: 0,
-          }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Map coming soon
-          </Typography>
+        {/* Right: Mapbox map */}
+        <Box sx={{ width: '45%', position: 'sticky', top: 0, height: 'calc(100vh - 90px)', flexShrink: 0 }}>
+          {effectiveLat && effectiveLng && (
+            <Map
+              mapboxAccessToken={MAPBOX_API_TOKEN}
+              initialViewState={{
+                latitude: effectiveLat,
+                longitude: effectiveLng,
+                zoom: 13,
+              }}
+              style={{ width: '100%', height: '100%' }}
+              mapStyle="mapbox://styles/mapbox/streets-v9"
+            >
+              {filteredActivities.map((activity, index) => (
+                <Marker
+                  key={activity.id}
+                  latitude={activity.latitude}
+                  longitude={activity.longitude}
+                >
+                  <Box
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      bgcolor: '#F67D56',
+                      border: '2px solid #fff',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {index + 1}
+                  </Box>
+                </Marker>
+              ))}
+            </Map>
+          )}
         </Box>
       </Box>
     </Box>

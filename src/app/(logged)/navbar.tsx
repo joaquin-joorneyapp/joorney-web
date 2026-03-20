@@ -24,6 +24,7 @@ const pages = [
     href: '/cities',
     onlyAdminUsers: true,
   },
+  { name: 'Explore', href: '/explore' },
   { name: 'New Plan', href: '/new-plan' },
   { name: 'Saved Plans', href: '/saved-plans', onlyLoggedUsers: true },
   { name: 'Log in', href: '/login', onlyAnonymUsers: true },

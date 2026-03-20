@@ -16,8 +16,9 @@ interface Props {
 }
 
 export default function ActivityCard({ activity }: Props) {
-  const pictureUrl = activity.pictures[0]?.url
-    ? buildImageUrl(activity.pictures[0].url)
+  const pic = activity.pictures[0];
+  const pictureUrl = pic
+    ? buildImageUrl(typeof pic === 'string' ? pic : (pic as { url: string }).url)
     : null;
 
   const href = `/cities/${activity.city.name}/activities/${activity.name}`;

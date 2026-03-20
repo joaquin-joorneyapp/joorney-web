@@ -54,7 +54,7 @@ export default function ExplorePage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 90px)' }}>
       {/* Search bar */}
-      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #E5E5EA' }}>
+      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #E5E5EA', display: 'flex', alignItems: 'center', gap: 2 }}>
         <TextField
           fullWidth
           placeholder="Search activities by name..."
@@ -70,6 +70,19 @@ export default function ExplorePage() {
           }}
           sx={{ maxWidth: 600 }}
         />
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={(_, mode) => mode && setViewMode(mode)}
+          sx={{ display: { xs: 'flex', md: 'none' }, height: 40, flexShrink: 0 }}
+        >
+          <ToggleButton value="list" aria-label="list view">
+            <ListIcon fontSize="small" />
+          </ToggleButton>
+          <ToggleButton value="map" aria-label="map view">
+            <MapOutlinedIcon fontSize="small" />
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
 
       {/* Category pills */}
@@ -131,26 +144,11 @@ export default function ExplorePage() {
         <Box sx={{ display: { xs: viewMode === 'map' ? 'none' : 'flex', md: 'flex' }, flexDirection: 'column', width: { xs: '100%', md: '55%' }, overflowY: 'auto', p: 3, borderRight: { xs: 'none', md: '1px solid #E5E5EA' } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h4">Nearby Activities</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {!activitiesLoading && (
-                <Typography variant="body2" color="text.secondary">
-                  {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''}
-                </Typography>
-              )}
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={(_, mode) => mode && setViewMode(mode)}
-                sx={{ display: { xs: 'flex', md: 'none' }, height: 32 }}
-              >
-                <ToggleButton value="list" aria-label="list view">
-                  <ListIcon fontSize="small" />
-                </ToggleButton>
-                <ToggleButton value="map" aria-label="map view">
-                  <MapOutlinedIcon fontSize="small" />
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
+            {!activitiesLoading && (
+              <Typography variant="body2" color="text.secondary">
+                {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''}
+              </Typography>
+            )}
           </Box>
 
           {activitiesError && (

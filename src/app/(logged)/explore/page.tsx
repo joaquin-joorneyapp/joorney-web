@@ -15,11 +15,14 @@ import Skeleton from '@mui/material/Skeleton';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
+import MapIcon from '@mui/icons-material/Map';
+import ListIcon from '@mui/icons-material/List';
 import { useState } from 'react';
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [showMap, setShowMap] = useState(false);
 
   // Geolocation with Paris fallback
   const { lat, lng, loading: geoLoading } = useGeolocation();
@@ -121,16 +124,30 @@ export default function ExplorePage() {
       </Box>
 
       {/* Two-panel split */}
-      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: { xs: 'column', md: 'row' } }}>
         {/* Left: activity grid */}
-        <Box sx={{ width: '55%', overflowY: 'auto', p: 3, borderRight: '1px solid #E5E5EA' }}>
+        <Box sx={{ width: { xs: '100%', md: '55%' }, overflowY: 'auto', p: 3, borderRight: { xs: 'none', md: '1px solid #E5E5EA' } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h4">Nearby Activities</Typography>
-            {!activitiesLoading && (
-              <Typography variant="body2" color="text.secondary">
-                {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''}
-              </Typography>
-            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {!activitiesLoading && (
+                <Typography variant="body2" color="text.secondary">
+                  {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''}
+                </Typography>
+              )}
+              <Button
+                size="small"
+                onClick={() => setShowMap((v) => !v)}
+                startIcon={showMap ? <ListIcon /> : <MapIcon />}
+                sx={{
+                  display: { xs: 'flex', md: 'none' },
+                  textTransform: 'none',
+                  color: '#F67D56',
+                }}
+              >
+                {showMap ? 'Hide Map' : 'Show Map'}
+              </Button>
+            </Box>
           </Box>
 
           {activitiesError && (
@@ -150,7 +167,7 @@ export default function ExplorePage() {
           {activitiesLoading ? (
             <Grid container spacing={2}>
               {[...Array(6)].map((_, i) => (
-                <Grid item xs={6} key={i}>
+                <Grid item xs={12} md={6} key={i}>
                   <Skeleton variant="rounded" height={260} sx={{ borderRadius: 2 }} />
                 </Grid>
               ))}
@@ -158,7 +175,7 @@ export default function ExplorePage() {
           ) : (
             <Grid container spacing={2}>
               {filteredActivities.map((activity) => (
-                <Grid item xs={6} key={activity.id}>
+                <Grid item xs={12} md={6} key={activity.id}>
                   <ActivityCard activity={activity} />
                 </Grid>
               ))}
@@ -167,7 +184,7 @@ export default function ExplorePage() {
         </Box>
 
         {/* Right: Mapbox map */}
-        <Box sx={{ width: '45%', position: 'sticky', top: 0, height: 'calc(100vh - 90px)', flexShrink: 0 }}>
+        <Box sx={{ display: { xs: showMap ? 'block' : 'none', md: 'block' }, width: { xs: '100%', md: '45%' }, position: 'sticky', top: 0, height: 'calc(100vh - 90px)', flexShrink: 0 }}>
           {effectiveLat && effectiveLng && (
             <Map
               mapboxAccessToken={MAPBOX_API_TOKEN}

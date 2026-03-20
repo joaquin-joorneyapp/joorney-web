@@ -27,9 +27,8 @@ function getProgressValue(startDate: Date, days: number): number {
 
 export default function HomeTripCard({ plan, showProgress = false }: Props) {
   const router = useRouter();
-  const pictureUrl = buildImageUrl(
-    plan.city.pictures[0]?.url ?? plan.city.pictures[1]?.url ?? plan.city.pictures[2]?.url ?? ''
-  );
+  const rawUrl = plan.city.pictures[0]?.url ?? plan.city.pictures[1]?.url ?? plan.city.pictures[2]?.url;
+  const pictureUrl = rawUrl ? buildImageUrl(rawUrl) : null;
 
   const startDate = plan.startDate ? new Date(plan.startDate) : null;
   const endDate =
@@ -48,14 +47,18 @@ export default function HomeTripCard({ plan, showProgress = false }: Props) {
       sx={{ minWidth: 200, maxWidth: 220, flexShrink: 0, cursor: 'pointer' }}
       onClick={() => router.push(`/plans/${plan.id}`)}
     >
-      <Image
-        alt={plan.city.title}
-        src={pictureUrl}
-        width={640}
-        height={480}
-        style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }}
-      />
-      <CardContent sx={{ pb: showProgress ? 0 : undefined }}>
+      {pictureUrl ? (
+        <Image
+          alt={plan.city.title}
+          src={pictureUrl}
+          width={640}
+          height={480}
+          style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }}
+        />
+      ) : (
+        <Box sx={{ width: '100%', height: '140px', bgcolor: 'grey.200' }} />
+      )}
+      <CardContent sx={{ pb: showProgress ? '0 !important' : undefined }}>
         <Typography variant="h5" component="div" sx={{ fontSize: '1.1rem' }}>
           {plan.city.title}
         </Typography>

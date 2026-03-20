@@ -1,5 +1,6 @@
 import { buildImageUrl } from '@/utils/image';
 import PlaceIcon from '@mui/icons-material/Place';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -12,17 +13,21 @@ interface Props {
 }
 
 export default function NearbyActivityCard({ activity }: Props) {
-  const pictureUrl = buildImageUrl(activity.pictures[0]?.url ?? '');
+  const pictureUrl = activity.pictures[0]?.url ? buildImageUrl(activity.pictures[0].url) : null;
 
   return (
     <Card sx={{ minWidth: 160, maxWidth: 180, flexShrink: 0 }}>
-      <Image
-        alt={activity.title}
-        src={pictureUrl}
-        width={640}
-        height={480}
-        style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }}
-      />
+      {pictureUrl ? (
+        <Image
+          alt={activity.title}
+          src={pictureUrl}
+          width={640}
+          height={480}
+          style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }}
+        />
+      ) : (
+        <Box sx={{ width: '100%', height: '120px', bgcolor: 'grey.200' }} />
+      )}
       <CardContent sx={{ p: '12px !important' }}>
         <Typography
           variant="h5"
@@ -37,7 +42,7 @@ export default function NearbyActivityCard({ activity }: Props) {
           {activity.title}
         </Typography>
         {activity.categories[0] && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {activity.categories[0].name}
           </Typography>
         )}

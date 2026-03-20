@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import React from 'react';
+import { ReactNode } from 'react';
 
 interface Props {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function HorizontalScrollSection({ title, children }: Props) {

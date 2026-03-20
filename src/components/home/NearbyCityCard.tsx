@@ -17,17 +17,21 @@ interface Props {
 
 export default function NearbyCityCard({ city }: Props) {
   const router = useRouter();
-  const pictureUrl = buildImageUrl(city.pictures[0]?.url ?? '');
+  const pictureUrl = city.pictures[0]?.url ? buildImageUrl(city.pictures[0].url) : null;
 
   return (
     <Card>
-      <Image
-        alt={city.title}
-        src={pictureUrl}
-        width={1280}
-        height={480}
-        style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }}
-      />
+      {pictureUrl ? (
+        <Image
+          alt={city.title}
+          src={pictureUrl}
+          width={1280}
+          height={480}
+          style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }}
+        />
+      ) : (
+        <Box sx={{ width: '100%', height: '200px', bgcolor: 'grey.200' }} />
+      )}
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box>

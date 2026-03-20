@@ -23,7 +23,7 @@ import { useState } from 'react';
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   // Geolocation with Paris fallback
@@ -40,11 +40,17 @@ export default function ExplorePage() {
     refetch: refetchActivities,
   } = getClosestActivities(effectiveLat, effectiveLng, 50);
 
+  const toggleCategory = (id: number) => {
+    setSelectedCategoryIds((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
   // Client-side filtering (category AND search compose)
   const filteredActivities = (activities ?? []).filter((activity) => {
     const matchesCategory =
-      selectedCategoryId === null ||
-      activity.categories.some((c) => c.id === selectedCategoryId);
+      selectedCategoryIds.length === 0 ||
+      activity.categories.some((c) => selectedCategoryIds.includes(c.id));
     const matchesSearch =
       searchQuery === '' ||
       activity.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -52,9 +58,16 @@ export default function ExplorePage() {
   });
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 90px)' }}>
+    // On mobile, break out of layout's marginX (0.5rem) + px:1 (8px) = 1rem per side
+    // and use correct height: layout mt=48px + pt=24px = 72px offset on mobile
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: { xs: 'calc(100vh - 72px)', md: 'calc(100vh - 90px)' },
+      mx: { xs: '-1rem', md: 0 },
+    }}>
       {/* Search bar */}
-      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid #E5E5EA', display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
         <TextField
           fullWidth
           placeholder="Search activities by name..."
@@ -90,7 +103,6 @@ export default function ExplorePage() {
         sx={{
           px: 3,
           py: 1,
-          borderBottom: '1px solid #E5E5EA',
           display: 'flex',
           gap: 1,
           overflowX: 'auto',
@@ -107,12 +119,12 @@ export default function ExplorePage() {
           <>
             <Button
               size="small"
-              onClick={() => setSelectedCategoryId(null)}
+              onClick={() => setSelectedCategoryIds([])}
               sx={{
                 borderRadius: 4, px: 2, flexShrink: 0,
-                bgcolor: selectedCategoryId === null ? '#F67D56' : '#F2F2F7',
-                color: selectedCategoryId === null ? '#fff' : 'text.primary',
-                '&:hover': { bgcolor: selectedCategoryId === null ? '#e56b45' : '#e0e0e7' },
+                bgcolor: selectedCategoryIds.length === 0 ? '#F67D56' : '#F2F2F7',
+                color: selectedCategoryIds.length === 0 ? '#fff' : 'text.primary',
+                '&:hover': { bgcolor: selectedCategoryIds.length === 0 ? '#e56b45' : '#e0e0e7' },
                 textTransform: 'none', fontWeight: 500,
               }}
             >
@@ -122,12 +134,12 @@ export default function ExplorePage() {
               <Button
                 key={cat.id}
                 size="small"
-                onClick={() => setSelectedCategoryId(cat.id)}
+                onClick={() => toggleCategory(cat.id)}
                 sx={{
                   borderRadius: 4, px: 2, flexShrink: 0,
-                  bgcolor: selectedCategoryId === cat.id ? '#F67D56' : '#F2F2F7',
-                  color: selectedCategoryId === cat.id ? '#fff' : 'text.primary',
-                  '&:hover': { bgcolor: selectedCategoryId === cat.id ? '#e56b45' : '#e0e0e7' },
+                  bgcolor: selectedCategoryIds.includes(cat.id) ? '#F67D56' : '#F2F2F7',
+                  color: selectedCategoryIds.includes(cat.id) ? '#fff' : 'text.primary',
+                  '&:hover': { bgcolor: selectedCategoryIds.includes(cat.id) ? '#e56b45' : '#e0e0e7' },
                   textTransform: 'none', fontWeight: 500, whiteSpace: 'nowrap',
                 }}
               >
@@ -185,7 +197,13 @@ export default function ExplorePage() {
         </Box>
 
         {/* Right: Mapbox map */}
-        <Box sx={{ display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' }, width: { xs: '100%', md: '45%' }, height: { xs: 'calc(100vh - 210px)', md: 'calc(100vh - 90px)' }, flexShrink: 0 }}>
+        <Box sx={{
+          display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' },
+          width: { xs: '100%', md: '45%' },
+          // Mobile: fill remaining height (100vh minus navbar+pt:72px, search:72px, pills:48px)
+          height: { xs: 'calc(100vh - 192px)', md: 'calc(100vh - 90px)' },
+          flexShrink: 0,
+        }}>
           {effectiveLat && effectiveLng && (
             <Map
               key={viewMode}

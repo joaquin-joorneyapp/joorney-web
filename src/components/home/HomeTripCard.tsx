@@ -45,7 +45,7 @@ export default function HomeTripCard({ plan, showProgress = false }: Props) {
   return (
     <Card
       sx={{ minWidth: 200, maxWidth: 220, flexShrink: 0, cursor: 'pointer' }}
-      onClick={() => router.push(`/plans/${plan.id}`)}
+      onClick={() => plan.id && router.push(`/plans/${plan.id}`)}
     >
       {pictureUrl ? (
         <Image

@@ -12,6 +12,7 @@ import { Plan } from '@/types/fetchs/responses/plan';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -66,6 +67,14 @@ export default function HomePage() {
 
   return (
     <Box sx={{ width: '100%' }}>
+      {plansLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {!plansLoading && (
+        <>
       {plansError && (
         <Alert severity="info" sx={{ mb: 3 }}>
           Could not load your trips.
@@ -73,7 +82,7 @@ export default function HomePage() {
       )}
 
       {/* Empty state */}
-      {hasNoPlans && !plansError && (
+      {hasNoPlans && (
         <Box sx={{ mb: 5 }}>
           <Typography variant="h4" component="div" sx={{ mb: 2 }}>
             Welcome to Joorney
@@ -124,7 +133,7 @@ export default function HomePage() {
       {/* Time-based activities */}
       {closestActivities && closestActivities.length > 0 && (
         <HorizontalScrollSection title={getTimeSectionTitle()}>
-          {closestActivities.map((activity: ActivityWithDistance) => (
+          {closestActivities.map((activity) => (
             <NearbyActivityCard key={activity.id} activity={activity} />
           ))}
         </HorizontalScrollSection>
@@ -147,6 +156,8 @@ export default function HomePage() {
           </Typography>
           <NearbyCityCard city={closestCity} />
         </Box>
+      )}
+        </>
       )}
     </Box>
   );

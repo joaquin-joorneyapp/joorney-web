@@ -26,12 +26,10 @@ export default function ExplorePage() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
-  // Geolocation with Paris fallback
   const { lat, lng, loading: geoLoading } = useGeolocation();
   const effectiveLat = lat ?? (geoLoading ? null : 48.8566);
   const effectiveLng = lng ?? (geoLoading ? null : 2.3522);
 
-  // Data fetching — called unconditionally at top level (React Query hooks)
   const { data: categories, isLoading: categoriesLoading } = getCategories();
   const {
     data: activities,
@@ -46,7 +44,6 @@ export default function ExplorePage() {
     );
   };
 
-  // Client-side filtering (category AND search compose)
   const filteredActivities = (activities ?? []).filter((activity) => {
     const matchesCategory =
       selectedCategoryIds.length === 0 ||
@@ -58,16 +55,20 @@ export default function ExplorePage() {
   });
 
   return (
-    // On mobile, break out of layout's marginX (0.5rem) + px:1 (8px) = 1rem per side
-    // and use correct height: layout mt=48px + pt=24px = 72px offset on mobile
     <Box sx={{
       display: 'flex',
       flexDirection: 'column',
       height: { xs: 'calc(100vh - 72px)', md: 'calc(100vh - 90px)' },
       mx: { xs: '-1rem', md: 0 },
     }}>
-      {/* Search bar */}
-      <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+
+      {/* Title */}
+      <Box sx={{ px: 3, pt: 2, pb: 0, flexShrink: 0 }}>
+        <Typography variant="h4">Nearby Activities</Typography>
+      </Box>
+
+      {/* Search bar + mobile toggle */}
+      <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
         <TextField
           fullWidth
           placeholder="Search activities by name..."
@@ -98,19 +99,19 @@ export default function ExplorePage() {
         </ToggleButtonGroup>
       </Box>
 
-      {/* Category pills */}
-      <Box
-        sx={{
-          px: 3,
-          py: 1,
-          display: 'flex',
-          gap: 1,
-          overflowX: 'auto',
-          flexShrink: 0,
-          '&::-webkit-scrollbar': { height: 4 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.300', borderRadius: 2 },
-        }}
-      >
+      {/* Category pills — scrollable on mobile, wrap on desktop */}
+      <Box sx={{
+        px: 3,
+        py: 1,
+        display: 'flex',
+        gap: 1,
+        flexWrap: 'nowrap',
+        overflowX: 'auto',
+        flexShrink: 0,
+        '&::-webkit-scrollbar': { display: 'none' },
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+      }}>
         {categoriesLoading ? (
           [...Array(6)].map((_, i) => (
             <Skeleton key={i} variant="rounded" width={80} height={32} sx={{ borderRadius: 4, flexShrink: 0 }} />
@@ -152,17 +153,15 @@ export default function ExplorePage() {
 
       {/* Two-panel split */}
       <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: { xs: 'column', md: 'row' } }}>
-        {/* Left: activity grid */}
-        <Box sx={{ display: { xs: viewMode === 'map' ? 'none' : 'flex', md: 'flex' }, flexDirection: 'column', width: { xs: '100%', md: '55%' }, overflowY: 'auto', p: 3, borderRight: { xs: 'none', md: '1px solid #E5E5EA' } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h4">Nearby Activities</Typography>
-            {!activitiesLoading && (
-              <Typography variant="body2" color="text.secondary">
-                {filteredActivities.length} result{filteredActivities.length !== 1 ? 's' : ''}
-              </Typography>
-            )}
-          </Box>
 
+        {/* Left: activity grid */}
+        <Box sx={{
+          display: { xs: viewMode === 'map' ? 'none' : 'flex', md: 'flex' },
+          flexDirection: 'column',
+          width: { xs: '100%', md: '55%' },
+          overflowY: 'auto',
+          p: 3,
+        }}>
           {activitiesError && (
             <Alert
               severity="error"
@@ -196,37 +195,39 @@ export default function ExplorePage() {
           )}
         </Box>
 
-        {/* Right: Mapbox map */}
+        {/* Right: Mapbox map — pt:3 on desktop aligns map top with card grid top */}
         <Box sx={{
           display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' },
           width: { xs: '100%', md: '45%' },
-          // Mobile: fill remaining height (100vh minus navbar+pt:72px, search:72px, pills:48px)
-          height: { xs: 'calc(100vh - 192px)', md: 'calc(100vh - 90px)' },
+          height: { xs: 'calc(100vh - 192px)', md: 'auto' },
+          alignSelf: 'stretch',
           flexShrink: 0,
+          pt: { xs: 0, md: 3 },
+          pr: { xs: 0, md: 2 },
+          pb: { xs: 0, md: 3 },
         }}>
-          {effectiveLat && effectiveLng && (
-            <Map
-              key={viewMode}
-              mapboxAccessToken={MAPBOX_API_TOKEN}
-              mapLib={import('mapbox-gl')}
-              initialViewState={{
-                latitude: effectiveLat,
-                longitude: effectiveLng,
-                zoom: 13,
-              }}
-              style={{ width: '100%', height: '100%' }}
-              mapStyle="mapbox://styles/mapbox/streets-v9"
-            >
-              {filteredActivities.map((activity, index) => (
-                <Marker
-                  key={activity.id}
-                  latitude={activity.latitude}
-                  longitude={activity.longitude}
-                >
-                  <Box
-                    sx={{
-                      width: 28,
-                      height: 28,
+          <Box sx={{ borderRadius: { xs: 0, md: 5 }, overflow: 'hidden', height: '100%' }}>
+            {effectiveLat && effectiveLng && (
+              <Map
+                key={viewMode}
+                mapboxAccessToken={MAPBOX_API_TOKEN}
+                mapLib={import('mapbox-gl')}
+                initialViewState={{
+                  latitude: effectiveLat,
+                  longitude: effectiveLng,
+                  zoom: 13,
+                }}
+                style={{ width: '100%', height: '100%' }}
+                mapStyle="mapbox://styles/mapbox/streets-v9"
+              >
+                {filteredActivities.map((activity, index) => (
+                  <Marker
+                    key={activity.id}
+                    latitude={activity.latitude}
+                    longitude={activity.longitude}
+                  >
+                    <Box sx={{
+                      width: 28, height: 28,
                       bgcolor: '#F67D56',
                       border: '2px solid #fff',
                       borderRadius: '50%',
@@ -238,14 +239,14 @@ export default function ExplorePage() {
                       fontWeight: 700,
                       boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
                       cursor: 'pointer',
-                    }}
-                  >
-                    {index + 1}
-                  </Box>
-                </Marker>
-              ))}
-            </Map>
-          )}
+                    }}>
+                      {index + 1}
+                    </Box>
+                  </Marker>
+                ))}
+              </Map>
+            )}
+          </Box>
         </Box>
       </Box>
     </Box>

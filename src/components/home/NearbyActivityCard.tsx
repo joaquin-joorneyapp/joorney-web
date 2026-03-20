@@ -13,7 +13,10 @@ interface Props {
 }
 
 export default function NearbyActivityCard({ activity }: Props) {
-  const pictureUrl = activity.pictures[0]?.url ? buildImageUrl(activity.pictures[0].url) : null;
+  const pic = activity.pictures[0];
+  const pictureUrl = pic
+    ? buildImageUrl(typeof pic === 'string' ? pic : (pic as { url: string }).url)
+    : null;
 
   return (
     <Card sx={{ minWidth: 160, maxWidth: 180, flexShrink: 0 }}>
@@ -43,7 +46,7 @@ export default function NearbyActivityCard({ activity }: Props) {
         </Typography>
         {activity.categories[0] && (
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {activity.categories[0].name}
+            {activity.categories[0].title}
           </Typography>
         )}
         <Typography

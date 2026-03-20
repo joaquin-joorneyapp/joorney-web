@@ -1,3 +1,6 @@
 import React from 'react';
-const Image = ({ src, alt, ...props }: any) => <img src={src} alt={alt} {...props} />;
+type ImageProps = React.ImgHTMLAttributes<HTMLImageElement> & { src: string; alt: string };
+const Image = ({ src, alt, width: _w, height: _h, style, ...props }: ImageProps) => (
+  <img src={src} alt={alt} style={style} {...props} />
+);
 export default Image;

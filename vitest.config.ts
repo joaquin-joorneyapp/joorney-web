@@ -17,6 +17,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       'next/image': path.resolve(__dirname, './__mocks__/next/image.tsx'),
       'next/link': path.resolve(__dirname, './__mocks__/next/link.tsx'),
+      'next/navigation': path.resolve(__dirname, './__mocks__/next/navigation.tsx'),
     },
   },
 });

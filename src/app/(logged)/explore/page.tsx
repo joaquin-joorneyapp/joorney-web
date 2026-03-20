@@ -188,6 +188,7 @@ export default function ExplorePage() {
         <Box sx={{ display: { xs: viewMode === 'map' ? 'block' : 'none', md: 'block' }, width: { xs: '100%', md: '45%' }, height: { xs: 'calc(100vh - 210px)', md: 'calc(100vh - 90px)' }, flexShrink: 0 }}>
           {effectiveLat && effectiveLng && (
             <Map
+              key={viewMode}
               mapboxAccessToken={MAPBOX_API_TOKEN}
               mapLib={import('mapbox-gl')}
               initialViewState={{

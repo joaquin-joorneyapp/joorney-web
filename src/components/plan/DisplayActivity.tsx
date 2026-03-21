@@ -42,7 +42,7 @@ export default ({
       </Box>
 
       <Grid container rowSpacing={3} columnSpacing={3}>
-        <Grid md={6} xs={12} item>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Container sx={{ mb: 2.5 }} style={{ paddingLeft: 0 }}>
             <Box display="flex" alignItems="center" flexWrap="wrap">
               {isLoadingActivity ? (
@@ -115,7 +115,7 @@ export default ({
             )}
           </Container>
         </Grid>
-        <Grid md={6} xs={12} item>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Container style={{ paddingLeft: 0, paddingRight: 0 }}>
             <ImageList
               sx={{ width: '100%' }}

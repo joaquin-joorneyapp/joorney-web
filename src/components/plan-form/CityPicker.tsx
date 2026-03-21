@@ -99,7 +99,7 @@ export default function CityPicker({
       {isLoading ? (
         <Grid container spacing={2}>
           {Array.from({ length: 8 }, (_, i) => (
-            <Grid xs={6} sm={4} md={3} key={i}>
+            <Grid size={{ xs: 6, sm: 4, md: 3 }} key={i}>
               <Skeleton
                 variant="rounded"
                 sx={{ height: { xs: 130, md: 170 }, borderRadius: 3 }}
@@ -119,7 +119,7 @@ export default function CityPicker({
             const isSelected = selectedCity === city.name;
             const image = getCityImage(city);
             return (
-              <Grid xs={6} sm={4} md={3} key={city.id}>
+              <Grid size={{ xs: 6, sm: 4, md: 3 }} key={city.id}>
                 <Card
                   onClick={() => onCityChange(isSelected ? null : city.name)}
                   sx={{

@@ -101,7 +101,7 @@ export default function SavedPlansPage({}) {
         ) : (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   required
                   id="title"
@@ -115,7 +115,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   multiline
                   required
@@ -130,7 +130,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   id="address"
                   name="address"
@@ -143,7 +143,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   type="number"
                   required
@@ -158,7 +158,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   type="number"
                   required
@@ -173,7 +173,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <TextField
                   type="number"
                   required
@@ -188,7 +188,7 @@ export default function SavedPlansPage({}) {
                   fullWidth
                 />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 <FormControl
                   error={!!errors['categories']}
                   required
@@ -238,7 +238,7 @@ export default function SavedPlansPage({}) {
                   )}
                 </FormControl>
               </Grid>
-              <Grid xs={12}>
+              <Grid size={12}>
                 {activity?.pictures.length ? (
                   <ImageList cols={3}>
                     {activity.pictures.map((item) => (
@@ -257,7 +257,7 @@ export default function SavedPlansPage({}) {
                   <div>No images</div>
                 )}
               </Grid>
-              <Grid xs={12} sx={{ mb: 5 }}>
+              <Grid size={12} sx={{ mb: 5 }}>
                 {!isProcessing && Object.keys(errors).length > 0 && (
                   <Alert severity="error" sx={{ mt: 2, mb: 5 }}>
                     <AlertTitle>Error</AlertTitle>

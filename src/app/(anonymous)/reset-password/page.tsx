@@ -80,7 +80,7 @@ function ResetPassword() {
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid xs={12} sm={8} md={5} component={Paper} elevation={6}>
+      <Grid size={{ xs: 12, sm: 8, md: 5 }} component={Paper} elevation={6}>
         <Box
           sx={{
             my: 8,

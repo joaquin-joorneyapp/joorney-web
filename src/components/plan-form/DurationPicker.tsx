@@ -39,7 +39,7 @@ export default function DurationPicker({
       />
 
       <Grid container spacing={{ xs: 4, md: 8 }} sx={{ alignItems: 'flex-start' }}>
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Typography
             variant="body2"
             color="text.secondary"
@@ -111,7 +111,7 @@ export default function DurationPicker({
           )}
         </Grid>
 
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Typography
             variant="body2"
             color="text.secondary"

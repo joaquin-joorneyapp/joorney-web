@@ -58,7 +58,7 @@ export default ({
   return (
     <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
       <Grid container spacing={9}>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Box display={'block'} sx={{ mb: { xs: 4, md: 1.5 } }}>
             <Alert
               variant="outlined"
@@ -133,8 +133,7 @@ export default ({
           </Box>
         </Grid>
         <Grid
-          xs={12}
-          md={8}
+          size={{ xs: 12, md: 8 }}
           style={{ ...(isMobile && { paddingTop: 20 }) }}
         >
           <Typography variant="body1" sx={{ mb: 1.5 }}>

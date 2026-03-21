@@ -2,6 +2,7 @@ import AuthCTA from '@/components/AuthCTA';
 import { fetchAllCities } from '@/fetchs/server/city';
 import { fetchCityActivities } from '@/fetchs/server/activity';
 import { buildImageUrl } from '@/utils/image';
+import { trimDescription } from '@/utils/trimDescription';
 import {
   Card,
   CardContent,
@@ -99,9 +100,7 @@ export default async function PublicActivitiesPage({
                 </Typography>
                 {activity.description && (
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {activity.description.length > 100
-                      ? activity.description.slice(0, 100) + '…'
-                      : activity.description}
+                    {trimDescription(activity.description, 100)}
                   </Typography>
                 )}
                 {activity.duration ? (

@@ -15,7 +15,7 @@ export interface ActivityBase {
   duration: number;
   latitude: number;
   longitude: number;
-  city: City;
+  city?: City | null;
   cityId: number;
   pictures: Picture[];
 }

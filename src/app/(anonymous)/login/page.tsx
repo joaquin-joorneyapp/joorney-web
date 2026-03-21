@@ -7,7 +7,9 @@ import { parseHTTPErrors } from '@/utils/http';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { LoadingButton } from '@mui/lab';
 import { Alert, AlertTitle, Divider, Skeleton } from '@mui/material';
+import Backdrop from '@mui/material/Backdrop';
 import Avatar from '@mui/material/Avatar';
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -32,6 +34,7 @@ export default function WrappedLogin() {
 function Login() {
   const { setUser } = useContext(AuthUserContext);
   const [isProcessing, setProcessing] = useState(false);
+  const [isGoogleProcessing, setGoogleProcessing] = useState(false);
   const [errors, setErrors] = useState<any[]>([]);
   const [googleErrors, setGoogleErrors] = useState<any[]>([]);
   const [isEmailValidated, setEmailValidated] = useState(true);
@@ -92,16 +95,38 @@ function Login() {
 
   const signInWithGoogle = (res: CredentialResponse) => {
     setGoogleErrors([]);
-    registerWithGoogle({ token: res.credential || '' })
+    if (!res.credential) return;
+    setGoogleProcessing(true);
+    registerWithGoogle({ token: res.credential })
       .then(handlePostLogin)
       .catch((err) => {
+        setGoogleProcessing(false);
         setGoogleErrors(parseHTTPErrors(err));
       });
   };
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square sx={{ position: 'relative' }}>
+        {isGoogleProcessing && (
+          <Backdrop
+            open
+            disablePortal
+            sx={{
+              position: 'absolute',
+              bgcolor: 'rgba(255, 255, 255, 0.82)',
+              backdropFilter: 'blur(3px)',
+              zIndex: 1,
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <CircularProgress sx={{ color: 'primary.main' }} />
+            <Typography variant="body1" color="text.secondary">
+              Signing you in…
+            </Typography>
+          </Backdrop>
+        )}
         <Box
           sx={{
             my: 8,

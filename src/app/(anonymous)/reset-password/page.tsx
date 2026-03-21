@@ -149,18 +149,14 @@ function ResetPassword() {
                 >
                   Reset
                 </LoadingButton>
-                <Grid container>
-                  <Grid xs>
-                    <Link href="/request-reset-password" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
-                  <Grid>
-                    <Link href="/signup" variant="body2">
-                      {"Don't have an account? Sign Up"}
-                    </Link>
-                  </Grid>
-                </Grid>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Link href="/request-reset-password" variant="body2">
+                    Forgot password?
+                  </Link>
+                  <Link href="/signup" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                  </Link>
+                </Box>
                 <Copyright sx={{ mt: 5 }} />
               </Box>
             </>
@@ -168,10 +164,9 @@ function ResetPassword() {
         </Box>
       </Grid>
       <Grid
-        xs={false}
-        sm={4}
-        md={7}
+        size={{ sm: 4, md: 7 }}
         sx={{
+          display: { xs: 'none', sm: 'block' },
           backgroundImage:
             'url(https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)',
           backgroundRepeat: 'no-repeat',

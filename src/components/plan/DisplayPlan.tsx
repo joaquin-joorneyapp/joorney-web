@@ -45,7 +45,7 @@ import {
   List as MuiList,
 } from '@mui/material';
 import { buildImageUrl } from '@/utils/image';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid';
 import { addDays, format } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 

@@ -3,14 +3,15 @@ import { fetchAllCities } from '@/fetchs/server/city';
 import { fetchCityActivities } from '@/fetchs/server/activity';
 import { buildImageUrl } from '@/utils/image';
 import { trimDescription } from '@/utils/trimDescription';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -63,8 +64,8 @@ export default async function PublicActivitiesPage({
   if (!city) notFound();
 
   return (
-    // pb: 12 leaves space above the fixed AuthCTA banner
-    <Container maxWidth="lg" sx={{ py: 4, pb: 12 }}>
+    // pb: 16 leaves space above the fixed AuthCTA banner (~64px)
+    <Container maxWidth="lg" sx={{ py: 4, pb: 16 }}>
       <Typography variant="h4" gutterBottom>
         Activities in {city.title}
       </Typography>
@@ -85,12 +86,15 @@ export default async function PublicActivitiesPage({
               }}
             >
               {activity.pictures[0] && (
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={buildImageUrl(activity.pictures[0].url)}
-                  alt={activity.title}
-                />
+                <Box sx={{ position: 'relative', height: 200, overflow: 'hidden' }}>
+                  <Image
+                    src={buildImageUrl(activity.pictures[0].url)}
+                    alt={activity.title}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+                  />
+                </Box>
               )}
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" gutterBottom>

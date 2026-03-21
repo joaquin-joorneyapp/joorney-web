@@ -3,15 +3,13 @@ import { fetchAllCities } from '@/fetchs/server/city';
 import { fetchCityActivities } from '@/fetchs/server/activity';
 import { buildImageUrl } from '@/utils/image';
 import { trimDescription } from '@/utils/trimDescription';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-  Container,
-  Grid,
-  Typography,
-} from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Chip from '@mui/material/Chip';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';

@@ -209,11 +209,11 @@ export default function SignUp() {
         </Box>
       </Grid>
       <Grid
-        item
-        xs={false}
         sm={4}
         md={7}
+        data-testid="background-panel"
         sx={{
+          display: { xs: 'none', sm: 'block' },
           backgroundImage:
             'url(https://images.unsplash.com/photo-1558369178-6556d97855d0?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)',
           backgroundRepeat: 'no-repeat',

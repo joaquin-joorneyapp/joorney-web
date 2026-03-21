@@ -1,7 +1,7 @@
 import AuthCTA from '@/components/AuthCTA';
 import { fetchAllCities } from '@/fetchs/server/city';
 import { fetchCityActivities } from '@/fetchs/server/activity';
-import { buildImageUrl } from '@/utils/image';
+import { getPictureUrl } from '@/utils/image';
 import { trimDescription } from '@/utils/trimDescription';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -36,13 +36,15 @@ export async function generateMetadata({
     const cities = await fetchAllCities();
     const city = cities.find((c) => c.name === params.cityId);
     if (!city) return { title: 'Activities' };
+    const ogImage = getPictureUrl(city.pictures[0]);
     return {
       title: `Activities in ${city.title}`,
       description: `Explore activities in ${city.title}, ${city.country}.`,
+      alternates: { canonical: `/cities/${params.cityId}/activities` },
       openGraph: {
         title: `Activities in ${city.title} — Joorney`,
         description: `Explore activities in ${city.title}, ${city.country}.`,
-        images: city.pictures[0] ? [{ url: buildImageUrl(city.pictures[0].url) }] : [],
+        images: ogImage ? [{ url: ogImage }] : [],
       },
     };
   } catch {
@@ -85,10 +87,10 @@ export default async function PublicActivitiesPage({
                 flexDirection: 'column',
               }}
             >
-              {activity.pictures[0] && (
+              {getPictureUrl(activity.pictures[0]) && (
                 <Box sx={{ position: 'relative', height: 200, overflow: 'hidden' }}>
                   <Image
-                    src={buildImageUrl(activity.pictures[0].url)}
+                    src={getPictureUrl(activity.pictures[0])!}
                     alt={activity.title}
                     fill
                     style={{ objectFit: 'cover' }}

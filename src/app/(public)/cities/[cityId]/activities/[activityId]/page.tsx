@@ -2,7 +2,7 @@ import AuthCTA from '@/components/AuthCTA';
 import { fetchAllCities } from '@/fetchs/server/city';
 import { fetchActivity, fetchCityActivities } from '@/fetchs/server/activity';
 import { trimDescription } from '@/utils/trimDescription';
-import { buildImageUrl } from '@/utils/image';
+import { getPictureUrl } from '@/utils/image';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
@@ -42,15 +42,15 @@ export async function generateMetadata({
   const activity = await fetchActivity(params.cityId, params.activityId);
   if (!activity) return { title: 'Activity' };
   const cityName = activity.city?.title ?? params.cityId;
+  const ogImage = getPictureUrl(activity.pictures[0]);
   return {
     title: activity.title,
     description: trimDescription(activity.description, 160),
+    alternates: { canonical: `/cities/${params.cityId}/activities/${params.activityId}` },
     openGraph: {
       title: `${activity.title} in ${cityName}`,
       description: trimDescription(activity.description, 160),
-      images: activity.pictures[0]
-        ? [{ url: buildImageUrl(activity.pictures[0].url) }]
-        : [],
+      images: ogImage ? [{ url: ogImage }] : [],
       type: 'article',
     },
     twitter: { card: 'summary_large_image' },
@@ -91,8 +91,9 @@ export default async function PublicActivityDetailPage({
       longitude: activity.longitude,
     };
   }
-  if (activity.pictures[0]) {
-    jsonLd.image = buildImageUrl(activity.pictures[0].url);
+  const heroImage = getPictureUrl(activity.pictures[0]);
+  if (heroImage) {
+    jsonLd.image = heroImage;
   }
 
   return (
@@ -103,7 +104,7 @@ export default async function PublicActivityDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {activity.pictures[0] && (
+      {heroImage && (
         <Box
           sx={{
             position: 'relative',
@@ -115,7 +116,7 @@ export default async function PublicActivityDetailPage({
           }}
         >
           <Image
-            src={buildImageUrl(activity.pictures[0].url)}
+            src={heroImage}
             alt={activity.title}
             fill
             style={{ objectFit: 'cover' }}

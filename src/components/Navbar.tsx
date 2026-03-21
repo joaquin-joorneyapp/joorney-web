@@ -13,6 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -91,7 +92,7 @@ export default function Navbar() {
           id="toolbar"
         >
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
+            <Image src="/logo.svg" alt="logo" width={120} height={40} onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
@@ -135,7 +136,7 @@ export default function Navbar() {
           </Box>
 
           <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
-            <img src="/logo.svg" alt="logo" onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
+            <Image src="/logo.svg" alt="logo" width={100} height={34} onClick={() => router.push('/')} style={{ cursor: 'pointer' }} />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>

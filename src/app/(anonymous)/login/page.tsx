@@ -7,11 +7,11 @@ import { parseHTTPErrors } from '@/utils/http';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { LoadingButton } from '@mui/lab';
 import { Alert, AlertTitle, Divider, Skeleton } from '@mui/material';
-import Backdrop from '@mui/material/Backdrop';
 import Avatar from '@mui/material/Avatar';
-import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
@@ -116,7 +116,7 @@ function Login() {
               position: 'absolute',
               bgcolor: 'rgba(255, 255, 255, 0.82)',
               backdropFilter: 'blur(3px)',
-              zIndex: 1,
+              zIndex: (theme) => theme.zIndex.modal,
               flexDirection: 'column',
               gap: 2,
             }}

@@ -1,86 +1,21 @@
-'use client';
-
 import GoogleAnalytics from '@/components/GoogleAnalytics';
-import { AuthUserContext } from '@/contexts/AuthUserContext';
-import { Global, css } from '@emotion/react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { useRouter } from 'next/navigation';
+import type { Metadata } from 'next';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import ThemeRegistry from '../components/ThemeRegistry/ThemeRegistry';
+import Providers from './providers';
 
-const GlobalStyles = css`
-  body {
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number']::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  },
-`;
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // This authUser will be shared along the whole app, using the context.
-  const [user, setUser] = useState(null);
+export const metadata: Metadata = {
+  title: { template: '%s — Joorney', default: 'Joorney' },
+  description:
+    'Discover cities, explore activities, and generate personalised multi-day travel plans.',
+  metadataBase: new URL('https://joorney.com'),
+};
 
-  const router = useRouter();
-
-  // This fn persists the authenticated user information to be used when
-  // the app starts and it's set to the context to be used in the whole app.
-  const setAndPersistUser = (user: any) => {
-    user.isAuthenticated = true;
-    user.isAdmin = user.abilities.includes('admin');
-    localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('token', user.token);
-    setUser(user);
-  };
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      mutations: {
-        onError: (error) => {
-          if ((error as AxiosError)?.response?.status === 401) {
-            localStorage.clear();
-            const { pathname, search = '' } = location;
-            router.push(`/login#redirect=${pathname}${search}`);
-          }
-          return;
-        },
-      },
-    },
-  });
-
-  // When the app starts, it checks if there's a persisted token
-  // It'd mean there's an active session.
-  useEffect(() => {
-    const persistedUser = localStorage.getItem('user');
-    if (persistedUser) {
-      setUser(JSON.parse(persistedUser));
-    }
-  }, []);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <GoogleAnalytics />
       <body suppressHydrationWarning={true}>
-        <Global styles={GlobalStyles} />
-        <ThemeRegistry>
-          <GoogleOAuthProvider clientId="171259896077-j3s5o87e1ii63l0a355n4l6v0ilg0tnh.apps.googleusercontent.com">
-            <QueryClientProvider client={queryClient}>
-              <AuthUserContext.Provider
-                value={{ user, setUser: setAndPersistUser }}
-              >
-                {children}
-              </AuthUserContext.Provider>
-            </QueryClientProvider>
-          </GoogleOAuthProvider>
-        </ThemeRegistry>
+        <Providers>{children}</Providers>
+        <GoogleAnalytics />
       </body>
     </html>
   );

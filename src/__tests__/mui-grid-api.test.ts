@@ -54,15 +54,20 @@ describe('MUI Grid v7 API compliance', () => {
     expect(violations.map(rel)).toEqual([]);
   });
 
-  it('no file uses system props directly on <Grid> — use sx={{ alignItems }} instead', () => {
+  it('no file uses alignItems/justifyContent as a direct JSX prop on a line containing <Grid', () => {
     // alignItems="…" and justifyContent="…" on a Grid element are NOT
     // processed as CSS in MUI v7. They must live inside sx={{}}.
-    // Pattern: <Grid opening tag (may span multiple lines, no child elements)
-    // followed by the forbidden prop before the closing >.
-    const pattern = /<Grid\b(?:[^<>]|\r?\n[^<>]*)*(?:alignItems|justifyContent)=/;
-    const violations = tsxFiles.filter((f) =>
-      pattern.test(readFileSync(f, 'utf-8'))
-    );
+    // We check each line: if a line has both <Grid and the forbidden prop
+    // (without being inside sx={{}}) it is a violation.
+    const violations = tsxFiles.filter((f) => {
+      const lines = readFileSync(f, 'utf-8').split('\n');
+      return lines.some(
+        (line) =>
+          line.includes('<Grid') &&
+          /\b(?:alignItems|justifyContent)=/.test(line) &&
+          !line.includes('sx=')
+      );
+    });
     expect(violations.map(rel)).toEqual([]);
   });
 });

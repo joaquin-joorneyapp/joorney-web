@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 const pages = [
   { name: 'Home', href: '/home' },
@@ -43,8 +43,13 @@ const settings = [
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [mounted, setMounted] = useState(false);
   const { user } = useContext(AuthUserContext);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -64,12 +69,13 @@ export default function Navbar() {
     setAnchorElUser(null);
   };
 
+  const effectiveUser = mounted ? user : null;
   const visiblePages = pages.filter((p) => {
-    if (p.onlyAdminUsers && !user?.isAdmin) return false;
+    if (p.onlyAdminUsers && !effectiveUser?.isAdmin) return false;
     return (
       (!p.onlyAnonymUsers && !p.onlyLoggedUsers) ||
-      (p.onlyAnonymUsers && !user?.isAuthenticated) ||
-      (p.onlyLoggedUsers && user?.isAuthenticated)
+      (p.onlyAnonymUsers && !effectiveUser?.isAuthenticated) ||
+      (p.onlyLoggedUsers && effectiveUser?.isAuthenticated)
     );
   });
 
@@ -147,10 +153,10 @@ export default function Navbar() {
             ))}
           </Box>
           <Box sx={{ mr: 0 }}>
-            {user?.isAuthenticated ? (
+            {effectiveUser?.isAuthenticated ? (
               <Tooltip title="Open settings" style={{ marginLeft: '1rem' }}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={user.name}>{user.name ? user.name[0] : ''}</Avatar>
+                  <Avatar alt={effectiveUser.name}>{effectiveUser.name ? effectiveUser.name[0] : ''}</Avatar>
                 </IconButton>
               </Tooltip>
             ) : (

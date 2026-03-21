@@ -24,6 +24,7 @@ const productSansFont = localFont({
     },
   ],
   variable: '--font-poppins',
+  display: 'swap',
 });
 
 const roboto = Roboto({

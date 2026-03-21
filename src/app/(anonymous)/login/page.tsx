@@ -107,7 +107,7 @@ function Login() {
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square sx={{ position: 'relative' }}>
+      <Grid size={{ xs: 12, sm: 8, md: 5 }} component={Paper} elevation={6} square sx={{ position: 'relative' }}>
         {isGoogleProcessing && (
           <Backdrop
             open
@@ -205,12 +205,12 @@ function Login() {
               Sign In
             </LoadingButton>
             <Grid container>
-              <Grid item xs>
+              <Grid size="grow">
                 <Link href="/request-reset-password" variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
-              <Grid item>
+              <Grid>
                 <Link href={`/signup${locationHash}`} variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
@@ -243,8 +243,7 @@ function Login() {
         </Box>
       </Grid>
       <Grid
-        sm={4}
-        md={7}
+        size={{ sm: 4, md: 7 }}
         data-testid="background-panel"
         sx={{
           display: { xs: 'none', sm: 'block' },

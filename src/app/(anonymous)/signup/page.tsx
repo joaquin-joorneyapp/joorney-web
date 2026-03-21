@@ -68,7 +68,7 @@ export default function SignUp() {
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+      <Grid size={{ xs: 12, sm: 8, md: 5 }} component={Paper} elevation={6} square>
         <Box
           sx={{
             my: 8,
@@ -109,7 +109,7 @@ export default function SignUp() {
 
               <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       autoComplete="given-name"
                       name="firstName"
@@ -120,7 +120,7 @@ export default function SignUp() {
                       autoFocus
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       required
                       fullWidth
@@ -130,7 +130,7 @@ export default function SignUp() {
                       autoComplete="family-name"
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       required
                       fullWidth
@@ -140,7 +140,7 @@ export default function SignUp() {
                       autoComplete="email"
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       required
                       fullWidth
@@ -151,7 +151,7 @@ export default function SignUp() {
                       autoComplete="new-password"
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <FormControlLabel
                       control={<Checkbox value="true" color="primary" />}
                       label="I want to receive inspiration, marketing promotions and updates via email."
@@ -174,7 +174,7 @@ export default function SignUp() {
                   Sign Up
                 </LoadingButton>
                 <Grid container justifyContent="flex-end">
-                  <Grid item>
+                  <Grid>
                     <Link href="/login" variant="body2">
                       Already have an account? Sign in
                     </Link>
@@ -209,8 +209,7 @@ export default function SignUp() {
         </Box>
       </Grid>
       <Grid
-        sm={4}
-        md={7}
+        size={{ sm: 4, md: 7 }}
         data-testid="background-panel"
         sx={{
           display: { xs: 'none', sm: 'block' },

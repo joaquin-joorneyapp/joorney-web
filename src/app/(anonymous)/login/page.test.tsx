@@ -28,12 +28,20 @@ describe('Login page layout', () => {
     expect(screen.getByTestId('background-panel')).toBeInTheDocument();
   });
 
-  it('background panel has display:none on xs and block on sm via sx', () => {
-    render(<WrappedLogin />);
-    const panel = screen.getByTestId('background-panel');
-    // The sx display responsive value is applied as a MUI class. We verify the
-    // element is present in the DOM — CSS media queries are not applied in jsdom,
-    // but presence in the DOM confirms the panel was not accidentally removed.
-    expect(panel).toBeInTheDocument();
+  it('form panel uses correct MUI Grid v2 column sizing (sm:8, md:5)', () => {
+    const { container } = render(<WrappedLogin />);
+    // MuiGrid-grid-sm-8 / MuiGrid-grid-md-5 are only present when
+    // size={{ sm: 8, md: 5 }} is set via the Grid v2 API.
+    // If the old Grid v1 props (item xs sm md) are used instead,
+    // these classes will be absent and the layout will break.
+    const leftPanel = container.querySelector('.MuiGrid-grid-sm-8.MuiGrid-grid-md-5');
+    expect(leftPanel).not.toBeNull();
+  });
+
+  it('background panel uses correct MUI Grid v2 column sizing (sm:4, md:7)', () => {
+    const { container } = render(<WrappedLogin />);
+    const bgPanel = container.querySelector('.MuiGrid-grid-sm-4.MuiGrid-grid-md-7');
+    expect(bgPanel).not.toBeNull();
+    expect(bgPanel).toBe(screen.getByTestId('background-panel'));
   });
 });

@@ -2,11 +2,17 @@
 
 import { AuthUserContext } from '@/contexts/AuthUserContext';
 import { Box, Button, Typography } from '@mui/material';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 export default function AuthCTA() {
   const { user } = useContext(AuthUserContext);
-  if (user) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || user) return null;
 
   return (
     <Box

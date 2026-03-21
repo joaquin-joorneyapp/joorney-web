@@ -96,7 +96,7 @@ export default async function PublicActivityDetailPage({
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, pb: 12 }}>
+    <Container maxWidth="md" sx={{ py: 4, pb: 16 }}>
       {/* JSON-LD structured data — rendered server-side, visible to crawlers */}
       <script
         type="application/ld+json"

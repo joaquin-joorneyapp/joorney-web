@@ -2,7 +2,7 @@
 
 import Box from '@mui/material/Box';
 import * as React from 'react';
-import Navbar from './navbar';
+import Navbar from '@/components/Navbar';
 
 export default function LoggedLayout({
   children,

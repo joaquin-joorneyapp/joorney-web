@@ -67,7 +67,7 @@ export default function ListCities({}) {
                       <Tooltip title="Manage Activities" placement="top">
                         <IconButton
                           onClick={() =>
-                            router.push(`/cities/${city.id}/activities`)
+                            router.push(`/cities/${city.id}/activities/manage`)
                           }
                         >
                           <ListIcon />

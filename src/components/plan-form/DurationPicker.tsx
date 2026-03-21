@@ -38,8 +38,8 @@ export default function DurationPicker({
         subtitle="How long are you staying? Pick a start date if you know it."
       />
 
-      <Grid container spacing={{ xs: 4, md: 8 }} alignItems="flex-start">
-        <Grid item xs={12} md={6}>
+      <Grid container spacing={{ xs: 4, md: 8 }} sx={{ alignItems: 'flex-start' }}>
+        <Grid xs={12} md={6}>
           <Typography
             variant="body2"
             color="text.secondary"
@@ -111,7 +111,7 @@ export default function DurationPicker({
           )}
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Typography
             variant="body2"
             color="text.secondary"

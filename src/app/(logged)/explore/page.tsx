@@ -179,7 +179,7 @@ export default function ExplorePage() {
           {activitiesLoading ? (
             <Grid container spacing={2}>
               {[...Array(6)].map((_, i) => (
-                <Grid item xs={12} md={6} key={i}>
+                <Grid xs={12} md={6} key={i}>
                   <Skeleton variant="rounded" height={260} sx={{ borderRadius: 2 }} />
                 </Grid>
               ))}
@@ -187,7 +187,7 @@ export default function ExplorePage() {
           ) : (
             <Grid container spacing={2}>
               {filteredActivities.map((activity) => (
-                <Grid item xs={12} md={6} key={activity.id}>
+                <Grid xs={12} md={6} key={activity.id}>
                   <ActivityCard activity={activity} />
                 </Grid>
               ))}

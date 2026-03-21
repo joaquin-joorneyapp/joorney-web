@@ -9,7 +9,7 @@ function PlanGrid({ plans }: { plans: ReturnType<typeof getPlans>['data'] }) {
   return (
     <Grid container rowSpacing={3} columnSpacing={3}>
       {plans?.map((plan, i) => (
-        <Grid item key={i} xl={3} lg={4} md={6} sm={6} xs={12}>
+        <Grid key={i} xl={3} lg={4} md={6} sm={6} xs={12}>
           <PlanCard plan={plan} />
         </Grid>
       ))}

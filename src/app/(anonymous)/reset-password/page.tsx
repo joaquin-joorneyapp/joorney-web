@@ -80,7 +80,7 @@ function ResetPassword() {
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6}>
+      <Grid xs={12} sm={8} md={5} component={Paper} elevation={6}>
         <Box
           sx={{
             my: 8,
@@ -150,12 +150,12 @@ function ResetPassword() {
                   Reset
                 </LoadingButton>
                 <Grid container>
-                  <Grid item xs>
+                  <Grid xs>
                     <Link href="/request-reset-password" variant="body2">
                       Forgot password?
                     </Link>
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Link href="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
@@ -168,7 +168,6 @@ function ResetPassword() {
         </Box>
       </Grid>
       <Grid
-        item
         xs={false}
         sm={4}
         md={7}

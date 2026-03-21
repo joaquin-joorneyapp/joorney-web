@@ -52,7 +52,7 @@ export default function Login() {
 
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6}>
+      <Grid xs={12} sm={8} md={5} component={Paper} elevation={6}>
         <Box
           sx={{
             my: 8,
@@ -123,12 +123,12 @@ export default function Login() {
                   Confirm email
                 </LoadingButton>
                 <Grid container>
-                  <Grid item xs>
+                  <Grid xs>
                     <Link href="/login" variant="body2">
                       Go to Log In
                     </Link>
                   </Grid>
-                  <Grid item>
+                  <Grid>
                     <Link href="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
@@ -141,7 +141,6 @@ export default function Login() {
         </Box>
       </Grid>
       <Grid
-        item
         xs={false}
         sm={4}
         md={7}

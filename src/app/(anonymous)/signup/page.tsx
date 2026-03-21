@@ -173,7 +173,7 @@ export default function SignUp() {
                 >
                   Sign Up
                 </LoadingButton>
-                <Grid container justifyContent="flex-end">
+                <Grid container sx={{ justifyContent: 'flex-end' }}>
                   <Grid>
                     <Link href="/login" variant="body2">
                       Already have an account? Sign in

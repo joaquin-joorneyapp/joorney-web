@@ -240,7 +240,7 @@ export default function HomePage() {
                   'Follow your custom itinerary and make adjustments on the go',
               },
             ].map((step, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+              <Grid xs={12} sm={6} md={3} key={index}>
                 <Box sx={{ textAlign: 'center' }}>
                   <IconButton
                     sx={{
@@ -269,8 +269,8 @@ export default function HomePage() {
       {/* Feature Highlight */}
       <Box sx={{ bgcolor: '#FFF3E0', py: 12 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6}>
+          <Grid container spacing={6} sx={{ alignItems: 'center' }}>
+            <Grid xs={12} md={6}>
               <Typography
                 sx={{ typography: { xs: 'h3', md: 'h2' } }}
                 gutterBottom
@@ -311,7 +311,7 @@ export default function HomePage() {
                 ))}
               </List>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Paper
                 elevation={6}
                 sx={{ overflow: 'hidden', borderRadius: 4 }}

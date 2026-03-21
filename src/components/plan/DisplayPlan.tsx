@@ -435,7 +435,7 @@ export default function DisplayPlan({
 
       {/* ── Content grid ── */}
       <Grid container rowSpacing={3} columnSpacing={3} sx={{ mt: 0 }}>
-        <Grid display={!isMobile || viewMode === 'list' ? 'flex' : 'none'} md={6} xs={12}>
+        <Grid sx={{ display: !isMobile || viewMode === 'list' ? 'flex' : 'none' }} md={6} xs={12}>
           <Box sx={{ maxWidth: '100%', bgcolor: 'background.paper', px: { xs: 0, md: 3 }, width: '100%' }}>
             {currentSchedule && plan ? (
               <>

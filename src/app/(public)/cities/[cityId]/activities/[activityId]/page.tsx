@@ -139,7 +139,7 @@ export default async function PublicActivityDetailPage({
         </Box>
       )}
 
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" component="h1" gutterBottom>
         {activity.title}
       </Typography>
 

@@ -10,10 +10,22 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://joorney.com'),
 };
 
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Joorney',
+  url: 'https://joorney.com',
+  logo: 'https://joorney.com/logo.svg',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
         <Providers>{children}</Providers>
         <GoogleAnalytics />
       </body>

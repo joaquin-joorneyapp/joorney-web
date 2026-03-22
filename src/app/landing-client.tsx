@@ -104,6 +104,7 @@ export default function LandingPageClient() {
             />
 
             <Typography
+              component="h1"
               gutterBottom
               sx={{ mt: 6, typography: { xs: 'h3', md: 'h2' } }}
             >

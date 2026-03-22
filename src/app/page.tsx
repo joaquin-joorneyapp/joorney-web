@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import FeaturedDestinations from './featured-destinations';
 import LandingPageClient from './landing-client';
 
 export const metadata: Metadata = {
@@ -14,5 +15,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <LandingPageClient />;
+  return (
+    <>
+      <LandingPageClient />
+      <FeaturedDestinations />
+    </>
+  );
 }

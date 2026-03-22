@@ -46,6 +46,7 @@ export async function generateMetadata({
         description: `Explore activities in ${city.title}, ${city.country}.`,
         images: ogImage ? [{ url: ogImage }] : [],
       },
+      twitter: { card: 'summary_large_image' },
     };
   } catch {
     return { title: 'Activities' };
@@ -65,9 +66,26 @@ export default async function PublicActivitiesPage({
   const city = cities.find((c) => c.name === params.cityId);
   if (!city) notFound();
 
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Activities in ${city.title}`,
+    url: `https://joorney.com/cities/${params.cityId}/activities`,
+    itemListElement: activities.map((activity, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `https://joorney.com/cities/${params.cityId}/activities/${activity.name}`,
+      name: activity.title,
+    })),
+  };
+
   return (
     // pb: 16 leaves space above the fixed AuthCTA banner (~64px)
     <Container maxWidth="lg" sx={{ py: 4, pb: 16 }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+      />
       <Typography variant="h4" gutterBottom>
         Activities in {city.title}
       </Typography>

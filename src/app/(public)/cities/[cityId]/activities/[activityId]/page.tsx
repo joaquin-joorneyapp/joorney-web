@@ -96,12 +96,26 @@ export default async function PublicActivityDetailPage({
     jsonLd.image = heroImage;
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Joorney', item: 'https://joorney.com' },
+      { '@type': 'ListItem', position: 2, name: cityName, item: `https://joorney.com/cities/${params.cityId}/activities` },
+      { '@type': 'ListItem', position: 3, name: activity.title },
+    ],
+  };
+
   return (
     <Container maxWidth="md" sx={{ py: 4, pb: 16 }}>
       {/* JSON-LD structured data — rendered server-side, visible to crawlers */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       {heroImage && (

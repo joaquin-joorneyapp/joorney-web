@@ -97,7 +97,7 @@ export default function LandingPageClient() {
             <Box
               component="img"
               src="/logo.svg"
-              alt="logo"
+              alt="Joorney"
               width="100"
 
               height={{ md: 86, xs: 65 }}

@@ -1,7 +1,7 @@
 'use client';
 
 import { Plan } from '@/types/fetchs/responses/plan';
-import { buildImageUrl } from '@/utils/image';
+import { getPictureUrl } from '@/utils/image';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PlaceIcon from '@mui/icons-material/Place';
 import Box from '@mui/material/Box';
@@ -27,8 +27,10 @@ function getProgressValue(startDate: Date, days: number): number {
 
 export default function HomeTripCard({ plan, showProgress = false }: Props) {
   const router = useRouter();
-  const rawUrl = plan.city.pictures[0]?.url ?? plan.city.pictures[1]?.url ?? plan.city.pictures[2]?.url;
-  const pictureUrl = rawUrl ? buildImageUrl(rawUrl) : null;
+  const pictureUrl =
+    getPictureUrl(plan.city.pictures[0]) ??
+    getPictureUrl(plan.city.pictures[1]) ??
+    getPictureUrl(plan.city.pictures[2]);
 
   const startDate = plan.startDate ? new Date(plan.startDate) : null;
   const endDate =

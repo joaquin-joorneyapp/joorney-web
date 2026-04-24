@@ -1,7 +1,7 @@
 'use client';
 
 import { CityWithDistance } from '@/fetchs/city';
-import { buildImageUrl } from '@/utils/image';
+import { getPictureUrl } from '@/utils/image';
 import PlaceIcon from '@mui/icons-material/Place';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -17,7 +17,7 @@ interface Props {
 
 export default function NearbyCityCard({ city }: Props) {
   const router = useRouter();
-  const pictureUrl = city.pictures[0]?.url ? buildImageUrl(city.pictures[0].url) : null;
+  const pictureUrl = getPictureUrl(city.pictures[0]);
 
   return (
     <Card>

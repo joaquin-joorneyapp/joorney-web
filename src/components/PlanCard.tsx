@@ -1,5 +1,5 @@
 import { Plan } from '@/types/fetchs/responses/plan';
-import { buildImageUrl } from '@/utils/image';
+import { getPictureUrl } from '@/utils/image';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import Box from '@mui/material/Box';
@@ -15,9 +15,7 @@ interface Props {
 }
 
 export default function PlanCard({ plan }: Props) {
-  const pictureUrl = plan.city.pictures[0]?.url
-    ? buildImageUrl(plan.city.pictures[0].url)
-    : null;
+  const pictureUrl = getPictureUrl(plan.city.pictures[0]);
 
   const href = `/plans/${plan.id}`;
 

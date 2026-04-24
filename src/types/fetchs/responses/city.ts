@@ -1,5 +1,3 @@
-import { Picture } from './activity';
-
 export interface City {
   id: number;
   name: string;
@@ -7,5 +5,5 @@ export interface City {
   country: string;
   latitude: number;
   longitude: number;
-  pictures: Picture[];
+  pictures: string[];
 }
